@@ -172,15 +172,15 @@
                         <table class="w-full text-left text-sm text-white">
                             <thead class="bg-gray-950 text-white uppercase text-xs font-black tracking-wider border-b-2 border-gray-700">
                                 <tr>
-                                    <th scope="col" class="py-4 px-6">Nome do Fundo</th>
-                                    <th scope="col" class="py-4 px-6">Risco</th>
-                                    <th scope="col" class="py-4 px-6 text-right">Saldo Base</th>
-                                    <th scope="col" class="py-4 px-6 text-center">Saldo Atual & Salvar</th>
-                                    <th scope="col" class="py-4 px-6 text-right">Rendimento Líquido</th>
-                                    <th scope="col" class="py-4 px-6 text-center">Ações</th>
+                                    <th scope="col" class="py-4 px-6 text-white">Nome do Fundo</th>
+                                    <th scope="col" class="py-4 px-6 text-white">Risco</th>
+                                    <th scope="col" class="py-4 px-6 text-right text-white">Saldo Base</th>
+                                    <th scope="col" class="py-4 px-6 text-center text-white">Saldo Atual & Salvar</th>
+                                    <th scope="col" class="py-4 px-6 text-right text-white">Rendimento Líquido</th>
+                                    <th scope="col" class="py-4 px-6 text-center text-white">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="active-investments-tbody" class="divide-y divide-gray-800"></tbody>
+                            <tbody id="active-investments-tbody" class="divide-y divide-gray-800 text-white"></tbody>
                         </table>
                     </div>
                 </div>
@@ -217,15 +217,15 @@
                         </h3>
                         <p class="text-xs text-white mt-1">Meta: 80% Baixo Risco | 15% Médio Risco | 5% Alto Risco</p>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto bg-black/40 rounded-xl p-2 border border-gray-800">
                         <table class="w-full text-left text-sm text-white">
                             <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b-2 border-gray-700">
                                 <tr>
-                                    <th class="py-3 px-6">Nível de Risco</th>
-                                    <th class="py-3 px-6 text-center">% Recomendado</th>
-                                    <th class="py-3 px-6 text-right">Valor Recomendado (R$)</th>
-                                    <th class="py-3 px-6 text-right">Saldo Atual (R$)</th>
-                                    <th class="py-3 px-6 text-right">Diferença (Ajuste)</th>
+                                    <th class="py-3 px-6 text-white font-bold">Nível de Risco</th>
+                                    <th class="py-3 px-6 text-center text-white font-bold">% Recomendado</th>
+                                    <th class="py-3 px-6 text-right text-white font-bold">Valor Recomendado (R$)</th>
+                                    <th class="py-3 px-6 text-right text-white font-bold">Saldo Atual (R$)</th>
+                                    <th class="py-3 px-6 text-right text-white font-bold">Diferença (Ajuste)</th>
                                 </tr>
                             </thead>
                             <tbody id="recommended-allocation-tbody" class="divide-y divide-gray-800 font-mono text-white"></tbody>
@@ -240,13 +240,13 @@
                             <i class="fa-solid fa-piggy-bank text-emerald-400 text-xl"></i>
                             <span>Análise Comparativa (Portfólio Ativo vs. Poupança)</span>
                         </h3>
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto bg-black/40 rounded-xl p-2 border border-gray-800">
                             <table class="w-full text-left text-sm text-white">
                                 <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b-2 border-gray-700">
                                     <tr>
-                                        <th class="py-3 px-4">Modalidade</th>
-                                        <th class="py-3 px-4 text-right">Saldo Atual (R$)</th>
-                                        <th class="py-3 px-4 text-right">Lucro Líquido (R$)</th>
+                                        <th class="py-3 px-4 text-white font-bold">Modalidade</th>
+                                        <th class="py-3 px-4 text-right text-white font-bold">Saldo Atual (R$)</th>
+                                        <th class="py-3 px-4 text-right text-white font-bold">Lucro Líquido (R$)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="comparison-table-tbody" class="divide-y divide-gray-800 font-mono text-xs text-white"></tbody>
@@ -327,17 +327,17 @@
                     <table class="w-full text-left text-sm text-white">
                         <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b-2 border-gray-700">
                             <tr>
-                                <th class="py-4 px-6">Nome</th>
-                                <th class="py-4 px-6">Risco</th>
-                                <th class="py-4 px-6">Encerramento</th>
-                                <th class="py-4 px-6 text-right">Base</th>
-                                <th class="py-4 px-6 text-right">Resgatado</th>
-                                <th class="py-4 px-6 text-right">Lucro</th>
-                                <th class="py-4 px-6">Motivo</th>
-                                <th class="py-4 px-6 text-center">Ações</th>
+                                <th class="py-4 px-6 text-white font-bold">Nome</th>
+                                <th class="py-4 px-6 text-white font-bold">Risco</th>
+                                <th class="py-4 px-6 text-white font-bold">Encerramento</th>
+                                <th class="py-4 px-6 text-right text-white font-bold">Base</th>
+                                <th class="py-4 px-6 text-right text-white font-bold">Resgatado</th>
+                                <th class="py-4 px-6 text-right text-white font-bold">Lucro</th>
+                                <th class="py-4 px-6 text-white font-bold">Motivo</th>
+                                <th class="py-4 px-6 text-center text-white font-bold">Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="closed-investments-tbody" class="divide-y divide-gray-800"></tbody>
+                        <tbody id="closed-investments-tbody" class="divide-y divide-gray-800 text-white"></tbody>
                     </table>
                 </div>
             </section>
@@ -831,7 +831,7 @@
                 const diffColor = r.diff >= 0 ? 'text-emerald-400' : 'text-red-400';
                 const diffSign = r.diff >= 0 ? '+' : '';
                 return `
-                    <tr class="hover:bg-gray-800">
+                    <tr class="hover:bg-gray-800 text-white">
                         <td class="py-3 px-6 font-bold text-white">${r.label}</td>
                         <td class="py-3 px-6 text-center font-bold text-white">${r.pct}</td>
                         <td class="py-3 px-6 text-right text-white">${formatCurrency(r.rec)}</td>
@@ -857,12 +857,12 @@
 
             const tbody = document.getElementById('comparison-table-tbody');
             tbody.innerHTML = `
-                <tr class="hover:bg-gray-800">
+                <tr class="hover:bg-gray-800 text-white">
                     <td class="py-3 px-4 font-bold text-white">Portfólio Ativo (Demais Investimentos)</td>
                     <td class="py-3 px-4 text-right font-bold text-white">${formatCurrency(otherBalance)}</td>
                     <td class="py-3 px-4 text-right font-bold text-emerald-400">${formatCurrency(otherProfit)}</td>
                 </tr>
-                <tr class="hover:bg-gray-800">
+                <tr class="hover:bg-gray-800 text-white">
                     <td class="py-3 px-4 font-bold text-white">POUPANÇA</td>
                     <td class="py-3 px-4 text-right font-bold text-white">${formatCurrency(poupancaBalance)}</td>
                     <td class="py-3 px-4 text-right font-bold text-amber-300">${formatCurrency(poupancaProfit)}</td>
