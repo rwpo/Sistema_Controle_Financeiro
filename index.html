@@ -188,6 +188,8 @@
 
             <!-- ABA 2: VISÃO GERAL -->
             <section id="tab-content-dashboard" class="tab-content hidden space-y-8">
+                
+                <!-- MÉTRICAS PRINCIPAIS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
                         <p class="text-xs font-bold text-white uppercase tracking-wider">Total Investido (Base)</p>
@@ -205,6 +207,92 @@
                     <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
                         <p class="text-xs font-bold text-white uppercase tracking-wider">Lucro Realizado (Encerrados)</p>
                         <h2 id="metric-realized-profit" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
+                    </div>
+                </div>
+
+                <!-- NOVO PAINEL A: DIAS DECORRIDOS, LUCRO DIÁRIO E PROJEÇÃO FIM DE ANO -->
+                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-emerald-500/60 shadow-xl space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-gray-800 pb-3">
+                        <h3 class="text-lg font-black text-white flex items-center space-x-3">
+                            <i class="fa-solid fa-calendar-day text-emerald-400 text-xl"></i>
+                            <span>Performance Diária e Projeção do Ano</span>
+                        </h3>
+                        <span id="days-count-badge" class="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-500/60 text-xs font-black rounded-full">0 dias no ano</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                        <div class="bg-black/50 p-4 rounded-xl border border-gray-800">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Dias Decorridos no Ano</p>
+                            <h4 id="metric-days-passed" class="text-2xl font-black text-white mt-1">0 dias</h4>
+                            <p class="text-xs text-emerald-400 font-semibold mt-1">Desde 1º de Janeiro</p>
+                        </div>
+
+                        <div class="bg-black/50 p-4 rounded-xl border border-gray-800">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Lucro Médio Diário</p>
+                            <h4 id="metric-daily-profit" class="text-2xl font-black text-emerald-400 mt-1">R$ 0,00 / dia</h4>
+                            <p class="text-xs text-gray-400 mt-1">Média obtida até hoje</p>
+                        </div>
+
+                        <div class="bg-black/50 p-4 rounded-xl border border-gray-800">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Projeção de Lucro (31/Dez)</p>
+                            <h4 id="metric-projected-year-profit" class="text-2xl font-black text-amber-300 mt-1">R$ 0,00</h4>
+                            <p class="text-xs text-gray-400 mt-1">Projeção estimada até o fim do ano</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NOVO PAINEL B: CONFIGURAÇÃO DE TETO INSS E RENDA LÍQUIDA ANUAL -->
+                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 border-gray-800 pb-4">
+                        <div>
+                            <h3 class="text-lg font-black text-white flex items-center space-x-3">
+                                <i class="fa-solid fa-calculator text-emerald-400 text-xl"></i>
+                                <span>Parâmetros Financeiros do Ano & Comparativo INSS</span>
+                            </h3>
+                            <p class="text-xs text-gray-400 mt-1">Informe o Teto do INSS e sua Renda Mensal do ano selecionado.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <label for="param-year-select" class="text-xs font-bold text-gray-300">Ano do Parâmetro:</label>
+                            <select id="param-year-select" onchange="loadAnnualParams()" class="bg-gray-950 border-2 border-gray-600 text-white font-bold text-xs rounded-xl px-3 py-2">
+                            </select>
+                        </div>
+                    </div>
+
+                    <form onsubmit="saveAnnualParams(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-end bg-black/40 p-4 rounded-xl border border-gray-800">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">Teto do INSS Mensal (R$)</label>
+                            <input type="number" step="0.01" id="input-inss-cap" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-2.5 text-white font-mono font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">Rendimento Líquido Mensal (Salário R$)</label>
+                            <input type="number" step="0.01" id="input-net-income" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-2.5 text-white font-mono font-bold">
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-xs transition-all shadow-md">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Parâmetros
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- QUADRO DE COMPARATIVO DE RENDIMENTO VS TETO INSS -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-black/50 p-5 rounded-xl border border-gray-800 space-y-1">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Rendimento Líquido Médio Total</p>
+                            <h4 id="inss-total-net-avg" class="text-xl font-black text-white">R$ 0,00 / mês</h4>
+                            <p class="text-[11px] text-gray-400">(Salário Líquido + Lucro Médio de Investimentos)</p>
+                        </div>
+
+                        <div class="bg-black/50 p-5 rounded-xl border border-gray-800 space-y-1">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Margem em Relação ao Teto INSS</p>
+                            <h4 id="inss-margin-val" class="text-xl font-black text-white">R$ 0,00</h4>
+                            <p id="inss-margin-desc" class="text-[11px] text-gray-400">Diferença absoluta para atingir o teto</p>
+                        </div>
+
+                        <div id="inss-status-card" class="bg-emerald-950/60 p-5 rounded-xl border-2 border-emerald-500 flex flex-col justify-center space-y-1">
+                            <p class="text-xs font-bold text-emerald-300 uppercase">Status do Teto INSS</p>
+                            <h4 id="inss-status-title" class="text-lg font-black text-emerald-200">Aguardando dados...</h4>
+                            <p id="inss-status-detail" class="text-xs font-semibold text-emerald-100">---</p>
+                        </div>
                     </div>
                 </div>
 
@@ -233,7 +321,7 @@
                     </div>
                 </div>
 
-                <!-- ANÁLISE COMPARATIVA: PORTFÓLIO VS. POUPANÇA (E GRÁFICO CLARO COM FONTE PRETA) -->
+                <!-- ANÁLISE COMPARATIVA: PORTFÓLIO VS. POUPANÇA -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 shadow-xl space-y-4 text-gray-900">
                         <h3 class="text-lg font-black text-gray-900 flex items-center space-x-3 border-b-2 border-slate-300 pb-4">
@@ -262,7 +350,7 @@
                     </div>
                 </div>
 
-                <!-- GRÁFICOS DE RISCO CLARO E YOY -->
+                <!-- GRÁFICOS DE RISCO E YOY -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 shadow-xl text-gray-900">
                         <h3 class="text-base font-black text-gray-900 mb-4">Alocação Atual por Risco</h3>
@@ -426,6 +514,7 @@
         let db = null;
         let investments = [];
         let historicalSnapshots = {};
+        let annualParameters = {};
 
         let riskChartInstance = null;
         let comparisonPieInstance = null;
@@ -480,6 +569,12 @@
                 historicalSnapshots = {};
                 historySnap.docs.forEach(doc => {
                     historicalSnapshots[doc.id] = doc.data();
+                });
+
+                const paramsSnap = await db.collection("annual_parameters").get();
+                annualParameters = {};
+                paramsSnap.docs.forEach(doc => {
+                    annualParameters[doc.id] = doc.data();
                 });
             } catch (e) {
                 console.error("Erro ao carregar do Firestore:", e);
@@ -553,6 +648,9 @@
             updateCharts();
             populateYearSelector();
             updateYoYChart();
+            populateParamYearSelector();
+            calculateDailyAndYearProjection();
+            calculateINSSComparison();
         }
 
         function switchTab(tabId) {
@@ -804,6 +902,127 @@
             document.getElementById('metric-realized-profit').innerText = formatCurrency(realizedProfit);
         }
 
+        /* --- LÓGICA DE PERFORMANCE DIÁRIA E PROJEÇÃO FIM DE ANO --- */
+        function calculateDailyAndYearProjection() {
+            const now = new Date();
+            const startOfYear = new Date(now.getFullYear(), 0, 1);
+            const diffTime = Math.abs(now - startOfYear);
+            const daysPassed = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+            const active = investments.filter(i => i.status === 'active');
+            const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue || curr.initialValue), 0);
+            const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
+            const currentProfit = totalCurrent - totalBase;
+
+            const dailyProfit = currentProfit / daysPassed;
+            const isLeap = (now.getFullYear() % 4 === 0 && now.getFullYear() % 100 !== 0) || (now.getFullYear() % 400 === 0);
+            const totalDaysInYear = isLeap ? 366 : 365;
+            const projectedProfit = dailyProfit * totalDaysInYear;
+
+            document.getElementById('days-count-badge').innerText = `${daysPassed}º dia do ano`;
+            document.getElementById('metric-days-passed').innerText = `${daysPassed} dias`;
+            document.getElementById('metric-daily-profit').innerText = `${formatCurrency(dailyProfit)} / dia`;
+            document.getElementById('metric-projected-year-profit').innerText = formatCurrency(projectedProfit);
+        }
+
+        /* --- LÓGICA DE PARÂMETROS ANUAIS E COMPARATIVO INSS --- */
+        function populateParamYearSelector() {
+            const select = document.getElementById('param-year-select');
+            const currentYear = new Date().getFullYear();
+            const yearsSet = new Set([currentYear, currentYear - 1, currentYear + 1]);
+            Object.keys(annualParameters).forEach(y => yearsSet.add(parseInt(y)));
+
+            const sortedYears = Array.from(yearsSet).sort((a,b) => b - a);
+            const currentSel = select.value;
+
+            select.innerHTML = sortedYears.map(y => `<option value="${y}" ${(currentSel ? parseInt(currentSel) === y : y === currentYear) ? 'selected' : ''}>Ano ${y}</option>`).join('');
+            loadAnnualParams();
+        }
+
+        function loadAnnualParams() {
+            const selYear = document.getElementById('param-year-select').value || new Date().getFullYear();
+            const data = annualParameters[selYear] || { inssCap: 0, netIncome: 0 };
+            
+            document.getElementById('input-inss-cap').value = data.inssCap || '';
+            document.getElementById('input-net-income').value = data.netIncome || '';
+
+            calculateINSSComparison();
+        }
+
+        async function saveAnnualParams(e) {
+            e.preventDefault();
+            const selYear = document.getElementById('param-year-select').value;
+            const inssCap = parseFloat(document.getElementById('input-inss-cap').value) || 0;
+            const netIncome = parseFloat(document.getElementById('input-net-income').value) || 0;
+
+            const paramObj = { inssCap, netIncome, updatedAt: new Date().toISOString() };
+            annualParameters[selYear] = paramObj;
+
+            try {
+                await db.collection("annual_parameters").doc(String(selYear)).set(paramObj);
+                showToast(`Parâmetros de ${selYear} salvos!`);
+            } catch (err) {
+                console.error("Erro ao salvar parâmetros:", err);
+                showToast("Erro ao salvar parâmetros.", "error");
+            }
+
+            calculateINSSComparison();
+        }
+
+        function calculateINSSComparison() {
+            const selYear = document.getElementById('param-year-select').value || new Date().getFullYear();
+            const params = annualParameters[selYear] || { inssCap: 0, netIncome: 0 };
+
+            const active = investments.filter(i => i.status === 'active');
+            const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue || curr.initialValue), 0);
+            const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
+            const unrealizedProfit = totalCurrent - totalBase;
+
+            const now = new Date();
+            const currentMonth = now.getMonth() + 1; // 1 a 12
+            const monthlyProfitAvg = unrealizedProfit / Math.max(1, currentMonth);
+
+            const salaryNet = params.netIncome || 0;
+            const totalNetAvg = salaryNet + monthlyProfitAvg;
+            const inssCap = params.inssCap || 0;
+
+            document.getElementById('inss-total-net-avg').innerText = `${formatCurrency(totalNetAvg)} / mês`;
+
+            const margin = totalNetAvg - inssCap;
+            const absMargin = Math.abs(margin);
+
+            const statusCard = document.getElementById('inss-status-card');
+            const titleEl = document.getElementById('inss-status-title');
+            const detailEl = document.getElementById('inss-status-detail');
+            const marginValEl = document.getElementById('inss-margin-val');
+            const marginDescEl = document.getElementById('inss-margin-desc');
+
+            marginValEl.innerText = formatCurrency(absMargin);
+
+            if (inssCap === 0) {
+                statusCard.className = "bg-gray-800 p-5 rounded-xl border-2 border-gray-600 flex flex-col justify-center space-y-1";
+                titleEl.innerText = "Parâmetros não definidos";
+                titleEl.className = "text-lg font-black text-gray-300";
+                detailEl.innerText = "Informe o Teto do INSS para este ano.";
+                marginDescEl.innerText = "Cadastre os valores acima para calcular.";
+                return;
+            }
+
+            if (margin >= 0) {
+                statusCard.className = "bg-emerald-950/80 p-5 rounded-xl border-2 border-emerald-500 flex flex-col justify-center space-y-1";
+                titleEl.innerText = "🟢 ACIMA DO TETO DO INSS";
+                titleEl.className = "text-lg font-black text-emerald-300";
+                detailEl.innerText = `Seu rendimento líquido médio está ${formatCurrency(absMargin)} acima do teto do INSS!`;
+                marginDescEl.innerText = "Superávit mensal em relação ao teto do INSS.";
+            } else {
+                statusCard.className = "bg-amber-950/80 p-5 rounded-xl border-2 border-amber-500 flex flex-col justify-center space-y-1";
+                titleEl.innerText = "🟡 ABAIXO DO TETO DO INSS";
+                titleEl.className = "text-lg font-black text-amber-300";
+                detailEl.innerText = `Faltam ${formatCurrency(absMargin)} por mês para alcançar o teto do INSS.`;
+                marginDescEl.innerText = "Déficit mensal em relação ao teto do INSS.";
+            }
+        }
+
         function renderRecommendedAllocation() {
             const active = investments.filter(i => i.status === 'active');
             const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
@@ -876,7 +1095,6 @@
         }
 
         function initCharts() {
-            // Gráfico Alocação Atual por Risco (Legendas com texto Preto para Fundo Claro)
             riskChartInstance = new Chart(document.getElementById('riskChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
@@ -920,7 +1138,6 @@
                 }
             });
 
-            // Gráfico Participação Patrimonial (Legendas com texto Preto para Fundo Claro)
             comparisonPieInstance = new Chart(document.getElementById('comparisonPieChart').getContext('2d'), {
                 type: 'pie',
                 data: {
