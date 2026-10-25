@@ -32,9 +32,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase JS SDK (v9 Modular Compat) -->
+    <!-- Firebase JS SDK (App, Firestore & Auth) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
     <style>
         *:focus-visible {
@@ -59,30 +60,26 @@
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
 
-    <!-- TELA DE AUTENTICAÇÃO / PROTEÇÃO POR SENHA -->
+    <!-- TELA DE AUTENTICAÇÃO VIA GOOGLE -->
     <div id="auth-overlay" class="fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
         <div class="bg-gray-900 rounded-3xl max-w-md w-full p-8 border-2 border-emerald-500/40 shadow-2xl shadow-emerald-950 text-center space-y-6">
             <div class="inline-flex p-4 bg-emerald-950 text-emerald-400 rounded-2xl border border-emerald-500/50 shadow-inner">
-                <i class="fa-solid fa-lock text-3xl"></i>
+                <i class="fa-solid fa-shield-halved text-3xl"></i>
             </div>
             
             <div>
                 <h2 class="text-2xl font-black text-white tracking-wide">Acesso Restrito</h2>
                 <p class="text-xs text-emerald-400 font-bold uppercase tracking-wider mt-1">Controle Financeiro</p>
-                <p class="text-xs text-gray-400 mt-2">Digite a senha de segurança para acessar o sistema de investimentos.</p>
+                <p class="text-xs text-gray-400 mt-2">Faça login com a conta Google autorizada (rwpoliveira2@gmail.com) para acessar.</p>
             </div>
 
-            <form onsubmit="handleAuthentication(event)" class="space-y-4">
-                <div>
-                    <input type="password" id="auth-password" required placeholder="Digite sua senha" class="w-full bg-gray-950 border-2 border-gray-700 rounded-2xl px-5 py-3.5 text-center text-white text-lg font-bold placeholder-gray-500 focus:border-emerald-500 focus:outline-none">
-                    <p id="auth-error-msg" class="text-xs font-bold text-red-400 mt-2 hidden">Senha incorreta. Tente novamente.</p>
-                </div>
-
-                <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-2xl shadow-lg shadow-emerald-950 transition-all flex items-center justify-center space-x-2 text-base">
-                    <i class="fa-solid fa-key"></i>
-                    <span>Entrar no Sistema</span>
+            <div class="space-y-4">
+                <button onclick="loginWithGoogle()" class="w-full py-4 bg-white hover:bg-gray-100 text-gray-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-3 text-base">
+                    <i class="fa-brands fa-google text-red-500 text-xl"></i>
+                    <span>Entrar com o Google</span>
                 </button>
-            </form>
+                <p id="auth-error-msg" class="text-xs font-bold text-red-400 mt-2 hidden"></p>
+            </div>
 
             <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Desenvolvido por Ricardo Wagner</p>
         </div>
@@ -91,7 +88,7 @@
     <!-- TOAST DE NOTIFICAÇÃO VISUAL -->
     <div id="toast-container" class="fixed top-24 right-5 z-50 flex flex-col space-y-3 pointer-events-none"></div>
 
-    <!-- CONTEÚDO DA APLICAÇÃO (ESCONDIDO ATÉ AUTENTICAR) -->
+    <!-- CONTEÚDO DA APLICAÇÃO -->
     <div id="app-content" class="hidden min-h-screen flex flex-col">
 
         <!-- HEADER -->
@@ -110,10 +107,10 @@
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div id="firebase-status-badge" class="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border-2 border-emerald-500/60 shadow-inner">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>Firebase Conectado</span>
+                        <span id="user-email-display">Conectado</span>
                     </div>
 
-                    <button id="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema claro e escuro" class="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 transition-all font-bold text-sm flex items-center gap-2">
+                    <button id="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" class="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 transition-all font-bold text-sm">
                         <i id="theme-icon" class="fa-solid fa-sun text-lg"></i>
                     </button>
 
@@ -127,25 +124,25 @@
         <!-- CONTEÚDO PRINCIPAL EM ABAS -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
             
-            <nav aria-label="Navegação do sistema" class="flex space-x-2 border-b-2 border-gray-800 mb-8 overflow-x-auto pb-1">
+            <nav aria-label="Navegação" class="flex space-x-2 border-b-2 border-gray-800 mb-8 overflow-x-auto pb-1">
                 <button onclick="switchTab('active')" id="tab-btn-active" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-emerald-500 text-emerald-400 bg-gray-900 shadow-md">
-                    <i class="fa-solid fa-list-check text-base" aria-hidden="true"></i>
+                    <i class="fa-solid fa-list-check text-base"></i>
                     <span>Carteira Ativa</span>
                     <span id="active-count-badge" class="ml-1.5 bg-emerald-950 text-emerald-300 border border-emerald-600/50 text-xs px-2.5 py-0.5 rounded-full font-extrabold">0</span>
                 </button>
 
                 <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-gray-400 hover:text-white hover:bg-gray-900/60">
-                    <i class="fa-solid fa-chart-pie text-base" aria-hidden="true"></i>
+                    <i class="fa-solid fa-chart-pie text-base"></i>
                     <span>Visão Geral</span>
                 </button>
 
                 <button onclick="switchTab('register')" id="tab-btn-register" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-gray-400 hover:text-white hover:bg-gray-900/60">
-                    <i class="fa-solid fa-circle-plus text-base" aria-hidden="true"></i>
+                    <i class="fa-solid fa-circle-plus text-base"></i>
                     <span>Cadastrar Fundo</span>
                 </button>
 
                 <button onclick="switchTab('closed')" id="tab-btn-closed" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-gray-400 hover:text-white hover:bg-gray-900/60">
-                    <i class="fa-solid fa-box-archive text-base" aria-hidden="true"></i>
+                    <i class="fa-solid fa-box-archive text-base"></i>
                     <span>Fundos Encerrados</span>
                     <span id="closed-count-badge" class="ml-1.5 bg-purple-950 text-purple-300 border border-purple-600/50 text-xs px-2.5 py-0.5 rounded-full font-extrabold">0</span>
                 </button>
@@ -156,13 +153,13 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-900 p-6 rounded-2xl border-2 border-gray-800 shadow-xl">
                     <div>
                         <h2 class="text-xl font-black text-white flex items-center space-x-3">
-                            <i class="fa-solid fa-list-check text-emerald-400 text-2xl" aria-hidden="true"></i>
+                            <i class="fa-solid fa-list-check text-emerald-400 text-2xl"></i>
                             <span>Carteira Ativa de Investimentos</span>
                         </h2>
-                        <p class="text-sm text-gray-400 mt-1">Atualize os saldos das checagens e registre movimentações (Aportes/Resgates) para recalcular a base.</p>
+                        <p class="text-sm text-gray-400 mt-1">Atualize os saldos das checagens e registre movimentações (Aportes/Resgates).</p>
                     </div>
                     <button onclick="saveAllCurrentBalances()" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-sm shadow-lg shadow-emerald-950 transition-all flex items-center space-x-2">
-                        <i class="fa-solid fa-floppy-disk text-base" aria-hidden="true"></i>
+                        <i class="fa-solid fa-floppy-disk text-base"></i>
                         <span>Salvar Todos os Saldos</span>
                     </button>
                 </div>
@@ -181,111 +178,61 @@
                                     <th scope="col" class="py-4 px-6 text-center">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="active-investments-tbody" class="divide-y divide-gray-800">
-                                <!-- Injetado via JS -->
-                            </tbody>
+                            <tbody id="active-investments-tbody" class="divide-y divide-gray-800"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- ABA 2: VISÃO GERAL / DASHBOARD -->
+            <!-- ABA 2: VISÃO GERAL -->
             <section id="tab-content-dashboard" class="tab-content hidden space-y-8">
-                <!-- CARDS SÍNTESE -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl relative overflow-hidden">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Investido (Base)</p>
-                                <h2 id="metric-total-initial" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
-                            </div>
-                            <div class="p-3.5 bg-blue-950 text-blue-400 rounded-2xl border border-blue-700/50">
-                                <i class="fa-solid fa-piggy-bank text-2xl" aria-hidden="true"></i>
-                            </div>
-                        </div>
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Investido (Base)</p>
+                        <h2 id="metric-total-initial" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
                     </div>
-
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl relative overflow-hidden">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Atual da Carteira</p>
-                                <h2 id="metric-total-current" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
-                            </div>
-                            <div class="p-3.5 bg-emerald-950 text-emerald-400 rounded-2xl border border-emerald-600/50">
-                                <i class="fa-solid fa-chart-line text-2xl" aria-hidden="true"></i>
-                            </div>
-                        </div>
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Saldo Atual da Carteira</p>
+                        <h2 id="metric-total-current" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
                     </div>
-
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl relative overflow-hidden">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lucro Não Realizado</p>
-                                <h2 id="metric-unrealized-profit" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
-                                <p id="metric-unrealized-yield" class="text-xs font-extrabold text-emerald-400 mt-1.5 flex items-center gap-1">
-                                    <span>+0,00% de rendimento</span>
-                                </p>
-                            </div>
-                            <div class="p-3.5 bg-green-950 text-green-400 rounded-2xl border border-green-600/50">
-                                <i class="fa-solid fa-money-bill-trend-up text-2xl" aria-hidden="true"></i>
-                            </div>
-                        </div>
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lucro Não Realizado</p>
+                        <h2 id="metric-unrealized-profit" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
+                        <p id="metric-unrealized-yield" class="text-xs font-extrabold text-emerald-400 mt-1.5">+0,00%</p>
                     </div>
-
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl relative overflow-hidden">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lucro Realizado (Encerrados)</p>
-                                <h2 id="metric-realized-profit" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
-                            </div>
-                            <div class="p-3.5 bg-purple-950 text-purple-400 rounded-2xl border border-purple-700/50">
-                                <i class="fa-solid fa-sack-dollar text-2xl" aria-hidden="true"></i>
-                            </div>
-                        </div>
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lucro Realizado (Encerrados)</p>
+                        <h2 id="metric-realized-profit" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
                     </div>
                 </div>
 
-                <!-- COMPARATIVO ANUAL DE LONGO PRAZO (YoY) -->
+                <!-- COMPARATIVO ANUAL (YoY) -->
                 <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 border-gray-800 pb-4">
-                        <div>
-                            <h3 class="text-lg font-black text-white flex items-center space-x-3">
-                                <i class="fa-solid fa-calendar-days text-emerald-400 text-xl"></i>
-                                <span>Comparativo Anual de Rendimento Líquido (Mensal)</span>
-                            </h3>
-                            <p class="text-xs text-gray-400 mt-0.5">Acompanhamento do histórico de rendimentos mês a mês em comparação com o ano anterior.</p>
-                        </div>
-
+                        <h3 class="text-lg font-black text-white flex items-center space-x-3">
+                            <i class="fa-solid fa-calendar-days text-emerald-400 text-xl"></i>
+                            <span>Comparativo Anual de Rendimento Líquido (Mensal)</span>
+                        </h3>
                         <div class="flex items-center space-x-2">
                             <label for="yoy-year-select" class="text-xs font-bold text-gray-300">Ano Base:</label>
-                            <select id="yoy-year-select" onchange="updateYoYChart()" class="bg-gray-950 border border-gray-700 text-white font-bold text-xs rounded-xl px-3 py-1.5 focus:border-emerald-500">
-                                <!-- Preenchido dinamicamente -->
+                            <select id="yoy-year-select" onchange="updateYoYChart()" class="bg-gray-950 border border-gray-700 text-white font-bold text-xs rounded-xl px-3 py-1.5">
                             </select>
                         </div>
                     </div>
-
                     <div class="h-72 relative">
                         <canvas id="yoyChart"></canvas>
                     </div>
                 </div>
 
-                <!-- GRÁFICOS SECUNDÁRIOS -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
-                        <h3 class="text-base font-extrabold text-white mb-4 flex items-center space-x-2">
-                            <i class="fa-solid fa-shield-halved text-emerald-400" aria-hidden="true"></i>
-                            <span>Alocação por Risco</span>
-                        </h3>
+                        <h3 class="text-base font-extrabold text-white mb-4">Alocação por Risco</h3>
                         <div class="h-64 relative flex items-center justify-center">
                             <canvas id="riskChart"></canvas>
                         </div>
                     </div>
-
                     <div class="lg:col-span-2 bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
-                        <h3 class="text-base font-extrabold text-white mb-4 flex items-center space-x-2">
-                            <i class="fa-solid fa-chart-column text-emerald-400" aria-hidden="true"></i>
-                            <span>Rendimento Líquido por Fundo (R$)</span>
-                        </h3>
+                        <h3 class="text-base font-extrabold text-white mb-4">Rendimento Líquido por Fundo (R$)</h3>
                         <div class="h-64 relative">
                             <canvas id="yieldChart"></canvas>
                         </div>
@@ -293,189 +240,109 @@
                 </div>
             </section>
 
-            <!-- ABA 3: CADASTRAR NOVO FUNDO -->
+            <!-- ABA 3: CADASTRAR -->
             <section id="tab-content-register" class="tab-content hidden max-w-3xl mx-auto">
                 <div class="bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-800 shadow-2xl">
-                    <div class="mb-6 border-b-2 border-gray-800 pb-4">
-                        <h2 class="text-xl font-black text-white flex items-center space-x-3">
-                            <i class="fa-solid fa-folder-plus text-emerald-400 text-2xl" aria-hidden="true"></i>
-                            <span>Cadastrar Novo Fundo de Investimento</span>
-                        </h2>
-                        <p class="text-sm text-gray-400 mt-1">Preencha os dados abaixo para cadastrar um novo ativo na sua carteira de acompanhamento.</p>
-                    </div>
-
+                    <h2 class="text-xl font-black text-white mb-6 border-b-2 border-gray-800 pb-4">Cadastrar Novo Fundo</h2>
                     <form id="register-fund-form" onsubmit="handleRegisterFund(event)" class="space-y-6">
                         <div>
-                            <label for="reg-name" class="block text-sm font-bold text-gray-200 mb-2">Nome do Fundo ou Ativo *</label>
-                            <input type="text" id="reg-name" required placeholder="Ex: Fundo Alpha Multimercado, Tesouro Selic 2029" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 font-medium focus:border-emerald-500">
+                            <label class="block text-sm font-bold text-gray-200 mb-2">Nome do Fundo *</label>
+                            <input type="text" id="reg-name" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
                         </div>
-
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label for="reg-risk" class="block text-sm font-bold text-gray-200 mb-2">Classificação de Risco *</label>
-                                <select id="reg-risk" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-semibold focus:border-emerald-500">
-                                    <option value="Baixo">🟢 Baixo Risco</option>
-                                    <option value="Médio" selected>🟡 Médio Risco</option>
-                                    <option value="Alto">🔴 Alto Risco</option>
+                                <label class="block text-sm font-bold text-gray-200 mb-2">Risco *</label>
+                                <select id="reg-risk" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
+                                    <option value="Baixo">🟢 Baixo</option>
+                                    <option value="Médio" selected>🟡 Médio</option>
+                                    <option value="Alto">🔴 Alto</option>
                                 </select>
                             </div>
-
                             <div>
-                                <label for="reg-opening-date" class="block text-sm font-bold text-gray-200 mb-2">Data de Abertura / Aporte *</label>
-                                <input type="date" id="reg-opening-date" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-medium focus:border-emerald-500">
+                                <label class="block text-sm font-bold text-gray-200 mb-2">Abertura *</label>
+                                <input type="date" id="reg-opening-date" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
                             </div>
                         </div>
-
                         <div>
-                            <label for="reg-initial-value" class="block text-sm font-bold text-gray-200 mb-2">Valor Aplicado Inicial (R$) *</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-3.5 text-gray-400 font-extrabold">R$</span>
-                                <input type="number" step="0.01" id="reg-initial-value" required placeholder="0,00" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl pl-12 pr-4 py-3 text-white font-mono font-bold placeholder-gray-500 focus:border-emerald-500">
-                            </div>
+                            <label class="block text-sm font-bold text-gray-200 mb-2">Valor Inicial (R$) *</label>
+                            <input type="number" step="0.01" id="reg-initial-value" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold">
                         </div>
-
                         <div>
-                            <label for="reg-notes" class="block text-sm font-bold text-gray-200 mb-2">Observações / Estratégia (Opcional)</label>
-                            <textarea id="reg-notes" rows="3" placeholder="Ex: Liquidez diária, foco em dividendos..." class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 font-medium focus:border-emerald-500"></textarea>
+                            <label class="block text-sm font-bold text-gray-200 mb-2">Observações</label>
+                            <textarea id="reg-notes" rows="3" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white"></textarea>
                         </div>
-
-                        <div class="pt-4 flex justify-end space-x-4">
-                            <button type="reset" class="px-5 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-200 font-bold text-sm border border-gray-700 transition-colors">
-                                Limpar
-                            </button>
-                            <button type="submit" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-950 transition-all flex items-center space-x-2">
-                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                                <span>Cadastrar Fundo</span>
-                            </button>
+                        <div class="flex justify-end space-x-4">
+                            <button type="submit" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-sm">Cadastrar</button>
                         </div>
                     </form>
                 </div>
             </section>
 
-            <!-- ABA 4: FUNDOS ENCERRADOS -->
+            <!-- ABA 4: ENCERRADOS -->
             <section id="tab-content-closed" class="tab-content hidden space-y-6">
                 <div class="bg-gray-900 p-6 rounded-2xl border-2 border-gray-800 shadow-xl">
-                    <h2 class="text-xl font-black text-white flex items-center space-x-3">
-                        <i class="fa-solid fa-box-archive text-purple-400 text-2xl" aria-hidden="true"></i>
-                        <span>Histórico de Fundos Encerrados</span>
-                    </h2>
-                    <p class="text-sm text-gray-400 mt-1">Registro de ativos liquidados com cálculo de lucro líquido final realizado.</p>
+                    <h2 class="text-xl font-black text-white">Fundos Encerrados</h2>
                 </div>
-
                 <div class="bg-gray-900 rounded-2xl border-2 border-gray-800 shadow-xl overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-gray-200">
-                            <thead class="bg-gray-950 text-gray-300 uppercase text-xs font-black tracking-wider border-b-2 border-gray-800">
-                                <tr>
-                                    <th scope="col" class="py-4 px-6">Nome do Fundo</th>
-                                    <th scope="col" class="py-4 px-6">Risco</th>
-                                    <th scope="col" class="py-4 px-6">Data Encerramento</th>
-                                    <th scope="col" class="py-4 px-6 text-right">Saldo Base Final</th>
-                                    <th scope="col" class="py-4 px-6 text-right">Valor Resgatado</th>
-                                    <th scope="col" class="py-4 px-6 text-right">Lucro Realizado</th>
-                                    <th scope="col" class="py-4 px-6">Motivo</th>
-                                    <th scope="col" class="py-4 px-6 text-center">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="closed-investments-tbody" class="divide-y divide-gray-800">
-                                <!-- Injetado via JS -->
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="w-full text-left text-sm text-gray-200">
+                        <thead class="bg-gray-950 text-gray-300 uppercase text-xs font-black border-b-2 border-gray-800">
+                            <tr>
+                                <th class="py-4 px-6">Nome</th>
+                                <th class="py-4 px-6">Risco</th>
+                                <th class="py-4 px-6">Encerramento</th>
+                                <th class="py-4 px-6 text-right">Base</th>
+                                <th class="py-4 px-6 text-right">Resgatado</th>
+                                <th class="py-4 px-6 text-right">Lucro</th>
+                                <th class="py-4 px-6">Motivo</th>
+                                <th class="py-4 px-6 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="closed-investments-tbody" class="divide-y divide-gray-800"></tbody>
+                    </table>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- MODAL DE APORTE / RESGATE PARCIAL -->
+    <!-- MODAL APORTE / RESGATE -->
     <div id="movement-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-800 shadow-2xl space-y-6">
-            <div class="flex justify-between items-center border-b-2 border-gray-800 pb-4">
-                <h3 class="text-lg font-black text-white flex items-center space-x-3">
-                    <i class="fa-solid fa-right-left text-blue-400 text-xl"></i>
-                    <span>Registrar Aporte ou Resgate Parcial</span>
-                </h3>
-                <button onclick="closeMovementModal()" class="text-gray-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </button>
-            </div>
-
-            <p class="text-sm text-gray-300 font-medium">Ativo selecionado: <strong id="modal-mov-fund-name" class="text-white font-extrabold underline decoration-blue-500">---</strong></p>
-
+            <h3 class="text-lg font-black text-white">Aporte ou Resgate Parcial</h3>
+            <p class="text-sm text-gray-300">Ativo: <strong id="modal-mov-fund-name" class="text-white">---</strong></p>
             <form id="movement-form" onsubmit="confirmMovement(event)" class="space-y-4">
                 <input type="hidden" id="modal-mov-fund-id">
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-200 mb-1.5">Tipo de Movimentação *</label>
-                    <select id="modal-mov-type" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-bold focus:border-blue-500">
-                        <option value="aporte">➕ Aporte (Aumenta o Saldo Base)</option>
-                        <option value="resgate">➖ Resgate Parcial (Diminui o Saldo Base)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-200 mb-1.5">Valor da Movimentação (R$) *</label>
-                    <input type="number" step="0.01" id="modal-mov-value" required placeholder="0,00" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold focus:border-blue-500">
-                </div>
-
-                <div class="pt-4 flex justify-end space-x-3">
-                    <button type="button" onclick="closeMovementModal()" class="px-5 py-3 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm hover:bg-gray-700 border border-gray-700">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl text-sm shadow-lg shadow-blue-950">
-                        Confirmar Movimentação
-                    </button>
+                <select id="modal-mov-type" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-bold">
+                    <option value="aporte">➕ Aporte (Aumenta o Saldo Base)</option>
+                    <option value="resgate">➖ Resgate Parcial (Diminui o Saldo Base)</option>
+                </select>
+                <input type="number" step="0.01" id="modal-mov-value" required placeholder="0,00" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold">
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeMovementModal()" class="px-5 py-3 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm">Cancelar</button>
+                    <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-extrabold rounded-xl text-sm">Confirmar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL DE LIQUIDAÇÃO DE FUNDO -->
+    <!-- MODAL LIQUIDAR -->
     <div id="liquidate-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-800 shadow-2xl space-y-6">
-            <div class="flex justify-between items-center border-b-2 border-gray-800 pb-4">
-                <h3 class="text-lg font-black text-white flex items-center space-x-3">
-                    <i class="fa-solid fa-box-archive text-purple-400 text-xl"></i>
-                    <span>Encerrar / Liquidar Fundo</span>
-                </h3>
-                <button onclick="closeLiquidateModal()" class="text-gray-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
-                </button>
-            </div>
-
-            <p class="text-sm text-gray-300 font-medium">Você está liquidando o ativo: <strong id="modal-fund-name" class="text-white font-extrabold underline decoration-purple-500">---</strong></p>
-
+            <h3 class="text-lg font-black text-white">Liquidar Fundo</h3>
+            <p class="text-sm text-gray-300">Ativo: <strong id="modal-fund-name" class="text-white">---</strong></p>
             <form id="liquidate-form" onsubmit="confirmLiquidation(event)" class="space-y-4">
                 <input type="hidden" id="modal-fund-id">
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-200 mb-1.5">Valor Final Resgatado (R$) *</label>
-                    <input type="number" step="0.01" id="modal-final-value" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold focus:border-purple-500">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-200 mb-1.5">Data de Encerramento *</label>
-                    <input type="date" id="modal-close-date" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-medium focus:border-purple-500">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-bold text-gray-200 mb-1.5">Motivo da Liquidação</label>
-                    <input type="text" id="modal-reason" placeholder="Ex: Meta atingida, rebalancamento, baixa performance" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-medium focus:border-purple-500">
-                </div>
-
-                <div class="pt-4 flex justify-end space-x-3">
-                    <button type="button" onclick="closeLiquidateModal()" class="px-5 py-3 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm hover:bg-gray-700 border border-gray-700">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-extrabold rounded-xl text-sm shadow-lg shadow-purple-950">
-                        Confirmar Liquidação
-                    </button>
+                <input type="number" step="0.01" id="modal-final-value" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold">
+                <input type="date" id="modal-close-date" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
+                <input type="text" id="modal-reason" placeholder="Motivo" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeLiquidateModal()" class="px-5 py-3 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm">Cancelar</button>
+                    <button type="submit" class="px-6 py-3 bg-purple-600 text-white font-extrabold rounded-xl text-sm">Confirmar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- JAVASCRIPT PRINCIPAL -->
+    <!-- SCRIPT FIREBASE AUTH & LOGIC -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyActzsOuSUB2ubawHTnYc_2hzSSkTPMdfc",
@@ -486,98 +353,92 @@
             appId: "1:270493452454:web:e5c3261447c4859fec0c67"
         };
 
+        const ALLOWED_EMAIL = "rwpoliveira2@gmail.com";
+
         let db = null;
-        let isFirebaseActive = false;
+        let auth = null;
         let investments = [];
-        let historicalSnapshots = {}; // Estrutura: { "YYYY-MM": { totalBase, totalCurrent, yield } }
+        let historicalSnapshots = {};
 
         let riskChartInstance = null;
         let yieldChartInstance = null;
         let yoyChartInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            if (sessionStorage.getItem("rw_financeiro_authenticated") === "true") {
-                unlockSystem();
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
             }
+            db = firebase.firestore();
+            auth = firebase.auth();
+
+            // Monitora mudança de estado de autenticação do Google
+            auth.onAuthStateChanged(user => {
+                const errorMsg = document.getElementById("auth-error-msg");
+                if (user) {
+                    if (user.email === ALLOWED_EMAIL) {
+                        errorMsg.classList.add("hidden");
+                        unlockSystem(user.email);
+                    } else {
+                        errorMsg.innerText = `Acesso negado para o e-mail (${user.email}). Apenas ${ALLOWED_EMAIL} é permitido.`;
+                        errorMsg.classList.remove("hidden");
+                        auth.signOut();
+                    }
+                } else {
+                    lockSystem();
+                }
+            });
         });
 
-        function handleAuthentication(e) {
-            e.preventDefault();
-            const passwordInput = document.getElementById("auth-password").value;
-            const errorMsg = document.getElementById("auth-error-msg");
-
-            if (passwordInput === "financeiro") {
-                sessionStorage.setItem("rw_financeiro_authenticated", "true");
-                unlockSystem();
-            } else {
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => {
+                console.error("Erro no login Google:", error);
+                const errorMsg = document.getElementById("auth-error-msg");
+                errorMsg.innerText = "Erro ao autenticar com o Google. Tente novamente.";
                 errorMsg.classList.remove("hidden");
-                document.getElementById("auth-password").value = "";
-                document.getElementById("auth-password").focus();
-            }
+            });
         }
 
-        function unlockSystem() {
+        function unlockSystem(email) {
             document.getElementById("auth-overlay").classList.add("hidden");
             document.getElementById("app-content").classList.remove("hidden");
+            document.getElementById("user-email-display").innerText = email;
 
             document.getElementById('reg-opening-date').value = new Date().toISOString().split('T')[0];
-            initFirebase();
             loadInvestmentsData();
             initCharts();
         }
 
-        function logout() {
-            sessionStorage.removeItem("rw_financeiro_authenticated");
-            location.reload();
+        function lockSystem() {
+            document.getElementById("auth-overlay").classList.remove("hidden");
+            document.getElementById("app-content").classList.add("hidden");
         }
 
-        function initFirebase() {
-            try {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                }
-                db = firebase.firestore();
-                isFirebaseActive = true;
-                document.getElementById('firebase-status-badge').classList.remove('hidden');
-            } catch (e) {
-                console.warn("Rodando em modo LocalStorage:", e);
-                isFirebaseActive = false;
-            }
+        function logout() {
+            auth.signOut().then(() => {
+                location.reload();
+            });
         }
 
         async function loadInvestmentsData() {
-            if (isFirebaseActive && db) {
-                try {
-                    const snapshot = await db.collection("investments").get();
-                    investments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            try {
+                const snapshot = await db.collection("investments").get();
+                investments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                    const historySnap = await db.collection("history_snapshots").get();
-                    historicalSnapshots = {};
-                    historySnap.docs.forEach(doc => {
-                        historicalSnapshots[doc.id] = doc.data();
-                    });
-                } catch (e) {
-                    console.error("Erro ao carregar do Firebase:", e);
-                    loadFromLocalStorage();
-                }
-            } else {
-                loadFromLocalStorage();
+                const historySnap = await db.collection("history_snapshots").get();
+                historicalSnapshots = {};
+                historySnap.docs.forEach(doc => {
+                    historicalSnapshots[doc.id] = doc.data();
+                });
+            } catch (e) {
+                console.error("Erro ao carregar do Firestore:", e);
+                showToast("Erro ao carregar dados do servidor.", "error");
             }
             renderAll();
         }
 
-        function loadFromLocalStorage() {
-            const saved = localStorage.getItem("rw_financial_investments");
-            investments = saved ? JSON.parse(saved) : [];
-
-            const savedHist = localStorage.getItem("rw_financial_history");
-            historicalSnapshots = savedHist ? JSON.parse(savedHist) : {};
-        }
-
         async function saveData() {
-            localStorage.setItem("rw_financial_investments", JSON.stringify(investments));
-
-            // Atualiza histórico mensal automático
+            // Histórico mensal automático
             const now = new Date();
             const yearMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             
@@ -593,27 +454,22 @@
                 updatedAt: now.toISOString()
             };
 
-            localStorage.setItem("rw_financial_history", JSON.stringify(historicalSnapshots));
+            try {
+                const batch = db.batch();
+                const snapshot = await db.collection("investments").get();
+                snapshot.docs.forEach(doc => batch.delete(doc.ref));
 
-            if (isFirebaseActive && db) {
-                try {
-                    const batch = db.batch();
-                    const snapshot = await db.collection("investments").get();
-                    snapshot.docs.forEach(doc => batch.delete(doc.ref));
+                investments.forEach(item => {
+                    const ref = db.collection("investments").doc(item.id);
+                    batch.set(ref, item);
+                });
 
-                    investments.forEach(item => {
-                        const ref = db.collection("investments").doc(item.id);
-                        batch.set(ref, item);
-                    });
+                const histRef = db.collection("history_snapshots").doc(yearMonthKey);
+                batch.set(histRef, historicalSnapshots[yearMonthKey]);
 
-                    // Salva snapshot no Firebase
-                    const histRef = db.collection("history_snapshots").doc(yearMonthKey);
-                    batch.set(histRef, historicalSnapshots[yearMonthKey]);
-
-                    await batch.commit();
-                } catch (e) {
-                    console.error("Erro ao salvar no Firebase:", e);
-                }
+                await batch.commit();
+            } catch (e) {
+                console.error("Erro ao salvar no Firestore:", e);
             }
 
             renderAll();
@@ -652,26 +508,15 @@
                 btn.classList.remove('border-emerald-500', 'text-emerald-400', 'bg-gray-900');
                 btn.classList.add('border-transparent', 'text-gray-400');
             });
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
 
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-
-            const selectedBtn = document.getElementById(`tab-btn-${tabId}`);
-            if (selectedBtn) {
-                selectedBtn.classList.add('border-emerald-500', 'text-emerald-400', 'bg-gray-900');
-                selectedBtn.classList.remove('border-transparent', 'text-gray-400');
-            }
-
-            const contentElem = document.getElementById(`tab-content-${tabId}`);
-            if (contentElem) {
-                contentElem.classList.remove('hidden');
-            }
+            document.getElementById(`tab-btn-${tabId}`).classList.add('border-emerald-500', 'text-emerald-400', 'bg-gray-900');
+            document.getElementById(`tab-btn-${tabId}`).classList.remove('border-transparent', 'text-gray-400');
+            document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
         }
 
         async function handleRegisterFund(e) {
             e.preventDefault();
-
             const name = document.getElementById('reg-name').value;
             const risk = document.getElementById('reg-risk').value;
             const openingDate = document.getElementById('reg-opening-date').value;
@@ -680,24 +525,20 @@
 
             const newFund = {
                 id: 'fund_' + Date.now(),
-                name: name,
-                risk: risk,
-                openingDate: openingDate,
-                initialValue: initialValue,
-                baseValue: initialValue, // Saldo base para aportes/resgates
+                name, risk, openingDate,
+                initialValue,
+                baseValue: initialValue,
                 currentBalance: initialValue,
                 status: 'active',
-                notes: notes,
+                notes,
                 lastUpdate: new Date().toISOString()
             };
 
             investments.push(newFund);
             await saveData();
-
             document.getElementById('register-fund-form').reset();
             document.getElementById('reg-opening-date').value = new Date().toISOString().split('T')[0];
-
-            showToast(`Fundo "${name}" cadastrado com sucesso!`);
+            showToast(`Fundo "${name}" cadastrado!`);
             switchTab('active');
         }
 
@@ -707,15 +548,7 @@
             document.getElementById('active-count-badge').innerText = activeItems.length;
 
             if (activeItems.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="py-12 text-center text-gray-400 font-medium">
-                            <i class="fa-solid fa-folder-open text-4xl mb-3 block text-gray-600"></i>
-                            Nenhum fundo ativo cadastrado.<br>
-                            Clique na aba <button onclick="switchTab('register')" class="text-emerald-400 underline font-bold hover:text-emerald-300">Cadastrar Fundo</button> para começar.
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-gray-400 font-medium">Nenhum fundo ativo.</td></tr>`;
                 return;
             }
 
@@ -727,48 +560,23 @@
 
                 return `
                     <tr class="hover:bg-gray-800/60 transition-colors">
-                        <td class="py-4 px-6 font-bold text-white">
-                            ${item.name}
-                            ${item.notes ? `<p class="text-xs text-gray-400 font-normal mt-0.5">${item.notes}</p>` : ''}
-                        </td>
+                        <td class="py-4 px-6 font-bold text-white">${item.name} ${item.notes ? `<p class="text-xs text-gray-400 font-normal mt-0.5">${item.notes}</p>` : ''}</td>
                         <td class="py-4 px-6">${getRiskBadge(item.risk)}</td>
-                        <td class="py-4 px-6 text-gray-300 font-medium">${formatDate(item.openingDate)}</td>
-                        
-                        <!-- SALDO BASE -->
-                        <td class="py-4 px-6 text-right font-mono font-bold text-gray-200">
-                            ${formatCurrency(base)}
-                        </td>
-
-                        <!-- SALDO ATUAL E BOTÃO SALVAR -->
+                        <td class="py-4 px-6 text-gray-300">${formatDate(item.openingDate)}</td>
+                        <td class="py-4 px-6 text-right font-mono font-bold text-gray-200">${formatCurrency(base)}</td>
                         <td class="py-4 px-6 text-center">
                             <div class="flex items-center justify-center space-x-2">
-                                <div class="relative">
-                                    <span class="absolute left-2.5 top-2 text-xs text-gray-400 font-bold">R$</span>
-                                    <input type="number" step="0.01" value="${item.currentBalance}"
-                                        id="input-balance-${item.id}"
-                                        class="w-32 bg-gray-950 border-2 border-gray-700 rounded-xl pl-8 pr-2 py-1.5 text-right text-white font-mono font-bold focus:border-emerald-500">
-                                </div>
-                                <button onclick="saveSingleBalance('${item.id}')" title="Salvar saldo deste fundo" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-md transition-all font-bold text-xs flex items-center space-x-1 border border-emerald-400/40">
-                                    <i class="fa-solid fa-floppy-disk text-sm"></i>
-                                </button>
+                                <input type="number" step="0.01" value="${item.currentBalance}" id="input-balance-${item.id}" class="w-32 bg-gray-950 border-2 border-gray-700 rounded-xl px-2 py-1.5 text-right text-white font-mono font-bold">
+                                <button onclick="saveSingleBalance('${item.id}')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl"><i class="fa-solid fa-floppy-disk"></i></button>
                             </div>
                         </td>
-
                         <td class="py-4 px-6 text-right font-mono font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'}">
-                            ${isPositive ? '+' : ''}${formatCurrency(yieldVal)}
-                            <span class="block text-xs font-semibold">(${isPositive ? '+' : ''}${yieldPct.toFixed(2)}%)</span>
+                            ${isPositive ? '+' : ''}${formatCurrency(yieldVal)}<span class="block text-xs font-semibold">(${isPositive ? '+' : ''}${yieldPct.toFixed(2)}%)</span>
                         </td>
-
                         <td class="py-4 px-6 text-center space-x-2">
-                            <button onclick="openMovementModal('${item.id}')" title="Aporte / Resgate Parcial" class="p-2.5 bg-blue-950 hover:bg-blue-900 text-blue-300 rounded-xl transition-colors border border-blue-700/60">
-                                <i class="fa-solid fa-right-left text-sm"></i>
-                            </button>
-                            <button onclick="openLiquidateModal('${item.id}')" title="Encerrar/Liquidar Fundo" class="p-2.5 bg-purple-950 hover:bg-purple-900 text-purple-200 rounded-xl transition-colors border border-purple-700/60">
-                                <i class="fa-solid fa-box-archive text-sm"></i>
-                            </button>
-                            <button onclick="deleteInvestment('${item.id}')" title="Excluir" class="p-2.5 bg-red-950 hover:bg-red-900 text-red-300 rounded-xl transition-colors border border-red-700/60">
-                                <i class="fa-solid fa-trash text-sm"></i>
-                            </button>
+                            <button onclick="openMovementModal('${item.id}')" class="p-2.5 bg-blue-950 text-blue-300 rounded-xl border border-blue-700/60"><i class="fa-solid fa-right-left"></i></button>
+                            <button onclick="openLiquidateModal('${item.id}')" class="p-2.5 bg-purple-950 text-purple-200 rounded-xl border border-purple-700/60"><i class="fa-solid fa-box-archive"></i></button>
+                            <button onclick="deleteInvestment('${item.id}')" class="p-2.5 bg-red-950 text-red-300 rounded-xl border border-red-700/60"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -781,13 +589,7 @@
             document.getElementById('closed-count-badge').innerText = closedItems.length;
 
             if (closedItems.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="py-12 text-center text-gray-500 font-medium">
-                            Nenhum fundo encerrado até o momento.
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-gray-500 font-medium">Nenhum fundo encerrado.</td></tr>`;
                 return;
             }
 
@@ -800,86 +602,64 @@
                     <tr class="hover:bg-gray-800/60 transition-colors">
                         <td class="py-4 px-6 font-bold text-white">${item.name}</td>
                         <td class="py-4 px-6">${getRiskBadge(item.risk)}</td>
-                        <td class="py-4 px-6 text-gray-300 font-medium">${formatDate(item.closeDate)}</td>
+                        <td class="py-4 px-6 text-gray-300">${formatDate(item.closeDate)}</td>
                         <td class="py-4 px-6 text-right font-mono font-bold">${formatCurrency(base)}</td>
                         <td class="py-4 px-6 text-right font-mono font-bold text-purple-300">${formatCurrency(item.finalValue)}</td>
-                        <td class="py-4 px-6 text-right font-mono font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'}">
-                            ${isPositive ? '+' : ''}${formatCurrency(profit)}
-                        </td>
-                        <td class="py-4 px-6 text-gray-300 text-xs font-medium">${item.closeReason || 'Não informado'}</td>
-                        <td class="py-4 px-6 text-center">
-                            <button onclick="reactivateFund('${item.id}')" title="Reativar Fundo" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold text-gray-200 rounded-xl border border-gray-700 transition-colors">
-                                Reativar
-                            </button>
-                        </td>
+                        <td class="py-4 px-6 text-right font-mono font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'}">${isPositive ? '+' : ''}${formatCurrency(profit)}</td>
+                        <td class="py-4 px-6 text-gray-300 text-xs">${item.closeReason || '---'}</td>
+                        <td class="py-4 px-6 text-center"><button onclick="reactivateFund('${item.id}')" class="px-3 py-1.5 bg-gray-800 text-xs font-bold text-gray-200 rounded-xl">Reativar</button></td>
                     </tr>
                 `;
             }).join('');
         }
 
-        // MOVIMENTAÇÃO (APORTE / RESGATE)
         function openMovementModal(id) {
             const fund = investments.find(i => i.id === id);
             if (!fund) return;
-
             document.getElementById('modal-mov-fund-id').value = fund.id;
             document.getElementById('modal-mov-fund-name').innerText = fund.name;
-            document.getElementById('modal-mov-value').value = '';
             document.getElementById('movement-modal').classList.remove('hidden');
         }
 
-        function closeMovementModal() {
-            document.getElementById('movement-modal').classList.add('hidden');
-        }
+        function closeMovementModal() { document.getElementById('movement-modal').classList.add('hidden'); }
 
         async function confirmMovement(e) {
             e.preventDefault();
             const id = document.getElementById('modal-mov-fund-id').value;
             const type = document.getElementById('modal-mov-type').value;
             const val = parseFloat(document.getElementById('modal-mov-value').value) || 0;
-
             const fund = investments.find(i => i.id === id);
+
             if (fund && val > 0) {
                 if (!fund.baseValue) fund.baseValue = fund.initialValue;
-
                 if (type === 'aporte') {
                     fund.baseValue += val;
-                    fund.currentBalance += val; // Incrementa também o saldo atual
-                    showToast(`Aporte de ${formatCurrency(val)} realizado em "${fund.name}"!`);
+                    fund.currentBalance += val;
                 } else {
                     fund.baseValue = Math.max(0, fund.baseValue - val);
                     fund.currentBalance = Math.max(0, fund.currentBalance - val);
-                    showToast(`Resgate parcial de ${formatCurrency(val)} realizado em "${fund.name}"!`, 'purple');
                 }
-
                 await saveData();
                 closeMovementModal();
+                showToast("Movimentação registrada!");
             }
         }
 
         async function saveSingleBalance(id) {
-            const inputElem = document.getElementById(`input-balance-${id}`);
-            const newBalance = parseFloat(inputElem.value) || 0;
-            
+            const val = parseFloat(document.getElementById(`input-balance-${id}`).value) || 0;
             const fund = investments.find(i => i.id === id);
             if (fund) {
-                fund.currentBalance = newBalance;
-                fund.lastUpdate = new Date().toISOString();
+                fund.currentBalance = val;
                 await saveData();
-                showToast(`Saldo de "${fund.name}" atualizado!`);
+                showToast("Saldo atualizado!");
             }
         }
 
         async function saveAllCurrentBalances() {
-            const activeItems = investments.filter(i => i.status === 'active');
-            activeItems.forEach(fund => {
-                const inputElem = document.getElementById(`input-balance-${fund.id}`);
-                if (inputElem) {
-                    fund.currentBalance = parseFloat(inputElem.value) || 0;
-                    fund.lastUpdate = new Date().toISOString();
-                }
+            investments.filter(i => i.status === 'active').forEach(fund => {
+                const el = document.getElementById(`input-balance-${fund.id}`);
+                if (el) fund.currentBalance = parseFloat(el.value) || 0;
             });
-
             await saveData();
             showToast("Todos os saldos salvos!");
         }
@@ -887,51 +667,44 @@
         function openLiquidateModal(id) {
             const fund = investments.find(i => i.id === id);
             if (!fund) return;
-
             document.getElementById('modal-fund-id').value = fund.id;
             document.getElementById('modal-fund-name').innerText = fund.name;
             document.getElementById('modal-final-value').value = fund.currentBalance;
             document.getElementById('modal-close-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('modal-reason').value = '';
-
             document.getElementById('liquidate-modal').classList.remove('hidden');
         }
 
-        function closeLiquidateModal() {
-            document.getElementById('liquidate-modal').classList.add('hidden');
-        }
+        function closeLiquidateModal() { document.getElementById('liquidate-modal').classList.add('hidden'); }
 
         async function confirmLiquidation(e) {
             e.preventDefault();
             const id = document.getElementById('modal-fund-id').value;
             const fund = investments.find(i => i.id === id);
-
             if (fund) {
                 fund.status = 'closed';
                 fund.finalValue = parseFloat(document.getElementById('modal-final-value').value) || 0;
                 fund.closeDate = document.getElementById('modal-close-date').value;
                 fund.closeReason = document.getElementById('modal-reason').value;
-
                 await saveData();
                 closeLiquidateModal();
-                showToast(`Fundo "${fund.name}" liquidado e arquivado!`, 'purple');
+                showToast("Fundo liquidado!", "purple");
                 switchTab('closed');
             }
         }
 
         async function reactivateFund(id) {
             const fund = investments.find(i => i.id === id);
-            if (fund && confirm(`Deseja reativar o fundo "${fund.name}" para a carteira ativa?`)) {
+            if (fund && confirm("Reativar fundo?")) {
                 fund.status = 'active';
                 fund.currentBalance = fund.finalValue;
                 await saveData();
-                showToast(`Fundo "${fund.name}" reativado!`);
+                showToast("Fundo reativado!");
                 switchTab('active');
             }
         }
 
         async function deleteInvestment(id) {
-            if (confirm("Excluir este fundo permanentemente?")) {
+            if (confirm("Excluir fundo?")) {
                 investments = investments.filter(i => i.id !== id);
                 await saveData();
                 showToast("Fundo excluído.");
@@ -946,109 +719,49 @@
             const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
             const unrealizedProfit = totalCurrent - totalBase;
             const unrealizedYieldPct = totalBase > 0 ? (unrealizedProfit / totalBase) * 100 : 0;
-
             const realizedProfit = closed.reduce((acc, curr) => acc + (curr.finalValue - (curr.baseValue || curr.initialValue)), 0);
 
             document.getElementById('metric-total-initial').innerText = formatCurrency(totalBase);
             document.getElementById('metric-total-current').innerText = formatCurrency(totalCurrent);
             document.getElementById('metric-unrealized-profit').innerText = formatCurrency(unrealizedProfit);
-            
-            const yieldElem = document.getElementById('metric-unrealized-yield');
-            yieldElem.innerText = `${unrealizedYieldPct >= 0 ? '+' : ''}${unrealizedYieldPct.toFixed(2)}% de rendimento`;
-            yieldElem.className = `text-xs font-extrabold mt-1.5 flex items-center gap-1 ${unrealizedYieldPct >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
-
+            document.getElementById('metric-unrealized-yield').innerText = `${unrealizedYieldPct >= 0 ? '+' : ''}${unrealizedYieldPct.toFixed(2)}%`;
             document.getElementById('metric-realized-profit').innerText = formatCurrency(realizedProfit);
         }
 
         function initCharts() {
-            const ctxRisk = document.getElementById('riskChart').getContext('2d');
-            riskChartInstance = new Chart(ctxRisk, {
+            riskChartInstance = new Chart(document.getElementById('riskChart').getContext('2d'), {
                 type: 'doughnut',
-                data: {
-                    labels: ['Baixo Risco', 'Médio Risco', 'Alto Risco'],
-                    datasets: [{
-                        data: [0, 0, 0],
-                        backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#e5e7eb', font: { weight: 'bold' } } }
-                    }
-                }
+                data: { labels: ['Baixo', 'Médio', 'Alto'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#22c55e', '#eab308', '#ef4444'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#e5e7eb', font: { weight: 'bold' } } } } }
             });
 
-            const ctxYield = document.getElementById('yieldChart').getContext('2d');
-            yieldChartInstance = new Chart(ctxYield, {
+            yieldChartInstance = new Chart(document.getElementById('yieldChart').getContext('2d'), {
                 type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Rendimento (R$)',
-                        data: [],
-                        backgroundColor: '#10b981',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { ticks: { color: '#9ca3af', font: { weight: 'bold' } }, grid: { display: false } },
-                        y: { ticks: { color: '#9ca3af', font: { weight: 'bold' } }, grid: { color: '#374151' } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
+                data: { labels: [], datasets: [{ data: [], backgroundColor: '#10b981', borderRadius: 8 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: '#9ca3af' }, grid: { display: false } }, y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } } }, plugins: { legend: { display: false } } }
             });
 
-            // GRÁFICO COMPARATIVO ANUAL (YoY)
-            const ctxYoY = document.getElementById('yoyChart').getContext('2d');
-            yoyChartInstance = new Chart(ctxYoY, {
+            yoyChartInstance = new Chart(document.getElementById('yoyChart').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
                     datasets: [
-                        {
-                            label: 'Ano Atual',
-                            data: Array(12).fill(0),
-                            backgroundColor: '#22c55e',
-                            borderRadius: 6
-                        },
-                        {
-                            label: 'Ano Anterior',
-                            data: Array(12).fill(0),
-                            backgroundColor: '#6b7280',
-                            borderRadius: 6
-                        }
+                        { label: 'Ano Atual', data: Array(12).fill(0), backgroundColor: '#22c55e', borderRadius: 6 },
+                        { label: 'Ano Anterior', data: Array(12).fill(0), backgroundColor: '#6b7280', borderRadius: 6 }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { ticks: { color: '#9ca3af', font: { weight: 'bold' } }, grid: { display: false } },
-                        y: { ticks: { color: '#9ca3af', font: { weight: 'bold' } }, grid: { color: '#374151' } }
-                    },
-                    plugins: {
-                        legend: { position: 'top', labels: { color: '#e5e7eb', font: { weight: 'bold' } } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: '#9ca3af' }, grid: { display: false } }, y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } } }, plugins: { legend: { position: 'top', labels: { color: '#e5e7eb' } } } }
             });
         }
 
         function updateCharts() {
-            if (!riskChartInstance || !yieldChartInstance) return;
-
+            if (!riskChartInstance) return;
             const active = investments.filter(i => i.status === 'active');
-
-            const low = active.filter(i => i.risk === 'Baixo').reduce((acc, curr) => acc + curr.currentBalance, 0);
-            const med = active.filter(i => i.risk === 'Médio').reduce((acc, curr) => acc + curr.currentBalance, 0);
-            const high = active.filter(i => i.risk === 'Alto').reduce((acc, curr) => acc + curr.currentBalance, 0);
-
-            riskChartInstance.data.datasets[0].data = [low, med, high];
+            riskChartInstance.data.datasets[0].data = [
+                active.filter(i => i.risk === 'Baixo').reduce((a, c) => a + c.currentBalance, 0),
+                active.filter(i => i.risk === 'Médio').reduce((a, c) => a + c.currentBalance, 0),
+                active.filter(i => i.risk === 'Alto').reduce((a, c) => a + c.currentBalance, 0)
+            ];
             riskChartInstance.update();
 
             yieldChartInstance.data.labels = active.map(i => i.name);
@@ -1059,74 +772,38 @@
         function populateYearSelector() {
             const select = document.getElementById('yoy-year-select');
             const currentYear = new Date().getFullYear();
-            
-            // Extrai anos do histórico ou usa atual/anterior
             const yearsSet = new Set([currentYear, currentYear - 1]);
-            Object.keys(historicalSnapshots).forEach(key => {
-                const y = parseInt(key.split('-')[0]);
-                if (y) yearsSet.add(y);
-            });
-
-            const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
-
-            select.innerHTML = sortedYears.map(y => `
-                <option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>
-            `).join('');
+            Object.keys(historicalSnapshots).forEach(k => yearsSet.add(parseInt(k.split('-')[0])));
+            select.innerHTML = Array.from(yearsSet).sort((a,b) => b-a).map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('');
         }
 
         function updateYoYChart() {
             if (!yoyChartInstance) return;
-
-            const selectedYear = parseInt(document.getElementById('yoy-year-select').value) || new Date().getFullYear();
-            const previousYear = selectedYear - 1;
-
-            const currentYearData = Array(12).fill(0);
-            const previousYearData = Array(12).fill(0);
+            const selYear = parseInt(document.getElementById('yoy-year-select').value) || new Date().getFullYear();
+            const prevYear = selYear - 1;
+            const currData = Array(12).fill(0);
+            const prevData = Array(12).fill(0);
 
             for (let m = 1; m <= 12; m++) {
-                const monthStr = String(m).padStart(2, '0');
-                const currKey = `${selectedYear}-${monthStr}`;
-                const prevKey = `${previousYear}-${monthStr}`;
-
-                if (historicalSnapshots[currKey]) {
-                    currentYearData[m - 1] = historicalSnapshots[currKey].yield || 0;
-                }
-                if (historicalSnapshots[prevKey]) {
-                    previousYearData[m - 1] = historicalSnapshots[prevKey].yield || 0;
-                }
+                const ms = String(m).padStart(2, '0');
+                if (historicalSnapshots[`${selYear}-${ms}`]) currData[m-1] = historicalSnapshots[`${selYear}-${ms}`].yield || 0;
+                if (historicalSnapshots[`${prevYear}-${ms}`]) prevData[m-1] = historicalSnapshots[`${prevYear}-${ms}`].yield || 0;
             }
-
-            yoyChartInstance.data.datasets[0].label = `Ano ${selectedYear}`;
-            yoyChartInstance.data.datasets[0].data = currentYearData;
-
-            yoyChartInstance.data.datasets[1].label = `Ano ${previousYear}`;
-            yoyChartInstance.data.datasets[1].data = previousYearData;
-
+            yoyChartInstance.data.datasets[0].label = `Ano ${selYear}`;
+            yoyChartInstance.data.datasets[0].data = currData;
+            yoyChartInstance.data.datasets[1].label = `Ano ${prevYear}`;
+            yoyChartInstance.data.datasets[1].data = prevData;
             yoyChartInstance.update();
         }
 
-        function formatCurrency(val) {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+        function formatCurrency(val) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0); }
+        function formatDate(ds) { if (!ds) return '---'; const [y, m, d] = ds.split('-'); return `${d}/${m}/${y}`; }
+        function getRiskBadge(r) {
+            if (r === 'Baixo') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-green-950 text-green-300 border border-green-600/60">🟢 Baixo</span>`;
+            if (r === 'Médio') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-yellow-950 text-yellow-300 border border-yellow-600/60">🟡 Médio</span>`;
+            return `<span class="px-3 py-1 text-xs font-black rounded-full bg-red-950 text-red-300 border border-red-600/60">🔴 Alto</span>`;
         }
-
-        function formatDate(dateStr) {
-            if (!dateStr) return '---';
-            const [y, m, d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
-        }
-
-        function getRiskBadge(risk) {
-            switch (risk) {
-                case 'Baixo': return `<span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-black rounded-full bg-green-950 text-green-300 border-2 border-green-600/60">🟢 Baixo</span>`;
-                case 'Médio': return `<span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-black rounded-full bg-yellow-950 text-yellow-300 border-2 border-yellow-600/60">🟡 Médio</span>`;
-                case 'Alto': return `<span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-black rounded-full bg-red-950 text-red-300 border-2 border-red-600/60">🔴 Alto</span>`;
-                default: return risk;
-            }
-        }
-
-        function toggleTheme() {
-            document.documentElement.classList.toggle('dark');
-        }
+        function toggleTheme() { document.documentElement.classList.toggle('dark'); }
     </script>
 </body>
 </html>
