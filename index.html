@@ -32,10 +32,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase JS SDK (App, Firestore & Auth) -->
+    <!-- Firebase JS SDK (App & Firestore) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
     <style>
         *:focus-visible {
@@ -60,26 +59,30 @@
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
 
-    <!-- TELA DE AUTENTICAÇÃO VIA GOOGLE -->
+    <!-- TELA DE AUTENTICAÇÃO (SENHA INTERNA) -->
     <div id="auth-overlay" class="fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
         <div class="bg-gray-900 rounded-3xl max-w-md w-full p-8 border-2 border-emerald-500/40 shadow-2xl shadow-emerald-950 text-center space-y-6">
             <div class="inline-flex p-4 bg-emerald-950 text-emerald-400 rounded-2xl border border-emerald-500/50 shadow-inner">
-                <i class="fa-solid fa-shield-halved text-3xl"></i>
+                <i class="fa-solid fa-lock text-3xl" aria-hidden="true"></i>
             </div>
             
             <div>
                 <h2 class="text-2xl font-black text-white tracking-wide">Acesso Restrito</h2>
                 <p class="text-xs text-emerald-400 font-bold uppercase tracking-wider mt-1">Controle Financeiro</p>
-                <p class="text-xs text-gray-400 mt-2">Faça login com a conta Google autorizada (rwpoliveira2@gmail.com) para acessar.</p>
             </div>
 
-            <div class="space-y-4">
-                <button onclick="loginWithGoogle()" class="w-full py-4 bg-white hover:bg-gray-100 text-gray-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-3 text-base">
-                    <i class="fa-brands fa-google text-red-500 text-xl"></i>
-                    <span>Entrar com o Google</span>
+            <form onsubmit="handleAuth(event)" class="space-y-4">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500">
+                        <i class="fa-solid fa-key"></i>
+                    </span>
+                    <input type="password" id="auth-password" required placeholder="Digite a senha de acesso" class="w-full bg-gray-950 border-2 border-gray-800 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-gray-500 font-bold focus:border-emerald-500 focus:outline-none transition-all">
+                </div>
+                <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-2xl shadow-lg shadow-emerald-950 transition-all text-base">
+                    Entrar no Sistema
                 </button>
-                <p id="auth-error-msg" class="text-xs font-bold text-red-400 mt-2 hidden"></p>
-            </div>
+                <p id="auth-error" class="text-xs font-bold text-red-400 hidden">Senha incorreta. Tente novamente.</p>
+            </form>
 
             <p class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Desenvolvido por Ricardo Wagner</p>
         </div>
@@ -107,15 +110,15 @@
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div id="firebase-status-badge" class="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border-2 border-emerald-500/60 shadow-inner">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span id="user-email-display">Conectado</span>
+                        <span>Firebase Conectado</span>
                     </div>
 
                     <button id="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" class="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 transition-all font-bold text-sm">
                         <i id="theme-icon" class="fa-solid fa-sun text-lg"></i>
                     </button>
 
-                    <button onclick="logout()" title="Sair do sistema" class="p-2.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 border border-red-700/60 transition-all font-bold text-sm">
-                        <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                    <button onclick="lockSystem()" title="Bloquear sistema" class="p-2.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 border border-red-700/60 transition-all font-bold text-sm">
+                        <i class="fa-solid fa-lock text-lg"></i>
                     </button>
                 </div>
             </div>
@@ -342,7 +345,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE AUTH & REDIRECT LOGIC -->
+    <!-- SCRIPT FIREBASE & APP LOGIC -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyActzsOuSUB2ubawHTnYc_2hzSSkTPMdfc",
@@ -353,10 +356,7 @@
             appId: "1:270493452454:web:e5c3261447c4859fec0c67"
         };
 
-        const ALLOWED_EMAIL = "rwpoliveira2@gmail.com";
-
         let db = null;
-        let auth = null;
         let investments = [];
         let historicalSnapshots = {};
 
@@ -364,80 +364,46 @@
         let yieldChartInstance = null;
         let yoyChartInstance = null;
 
-        document.addEventListener("DOMContentLoaded", async () => {
+        document.addEventListener("DOMContentLoaded", () => {
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
             db = firebase.firestore();
-            auth = firebase.auth();
 
-            try {
-                // Trata o retorno do redirecionamento do Google
-                const result = await auth.getRedirectResult();
-                if (result && result.user) {
-                    validateAndProceed(result.user);
-                }
-            } catch (error) {
-                console.error("Erro no redirecionamento Google:", error);
-                showAuthError("Erro na autenticação com o Google.");
+            // Verifica se já estava logado na sessão atual
+            if (sessionStorage.getItem("financeiro_auth") === "true") {
+                unlockSystem();
             }
-
-            // Monitora mudança de estado de autenticação
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    validateAndProceed(user);
-                } else {
-                    lockSystem();
-                }
-            });
         });
 
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            // Utiliza redirect em vez de popup para evitar bloqueadores e fechamento repentino
-            auth.signInWithRedirect(provider).catch(error => {
-                console.error("Erro ao iniciar login redirect:", error);
-                showAuthError("Não foi possível iniciar o login com o Google.");
-            });
-        }
+        function handleAuth(e) {
+            e.preventDefault();
+            const pass = document.getElementById("auth-password").value;
+            const errorEl = document.getElementById("auth-error");
 
-        function validateAndProceed(user) {
-            const errorMsg = document.getElementById("auth-error-msg");
-            if (user.email === ALLOWED_EMAIL) {
-                errorMsg.classList.add("hidden");
-                unlockSystem(user.email);
+            if (pass === "financeiro") {
+                sessionStorage.setItem("financeiro_auth", "true");
+                errorEl.classList.add("hidden");
+                unlockSystem();
             } else {
-                errorMsg.innerText = `Acesso negado para (${user.email}). Apenas ${ALLOWED_EMAIL} é permitido.`;
-                errorMsg.classList.remove("hidden");
-                auth.signOut();
+                errorEl.classList.remove("hidden");
+                document.getElementById("auth-password").value = "";
             }
         }
 
-        function showAuthError(msg) {
-            const errorMsg = document.getElementById("auth-error-msg");
-            errorMsg.innerText = msg;
-            errorMsg.classList.remove("hidden");
-        }
-
-        function unlockSystem(email) {
+        function unlockSystem() {
             document.getElementById("auth-overlay").classList.add("hidden");
             document.getElementById("app-content").classList.remove("hidden");
-            document.getElementById("user-email-display").innerText = email;
-
             document.getElementById('reg-opening-date').value = new Date().toISOString().split('T')[0];
             loadInvestmentsData();
             initCharts();
         }
 
         function lockSystem() {
+            sessionStorage.removeItem("financeiro_auth");
             document.getElementById("auth-overlay").classList.remove("hidden");
             document.getElementById("app-content").classList.add("hidden");
-        }
-
-        function logout() {
-            auth.signOut().then(() => {
-                location.reload();
-            });
+            document.getElementById("auth-password").value = "";
         }
 
         async function loadInvestmentsData() {
@@ -818,7 +784,7 @@
         function formatCurrency(val) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0); }
         function formatDate(ds) { if (!ds) return '---'; const [y, m, d] = ds.split('-'); return `${d}/${m}/${y}`; }
         function getRiskBadge(r) {
-            if (r === 'Baixo') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-green-950 text-green-300 border border-green-600/60">🟢 Baixo</span>`, r;
+            if (r === 'Baixo') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-green-950 text-green-300 border border-green-600/60">🟢 Baixo</span>`;
             if (r === 'Médio') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-yellow-950 text-yellow-300 border border-yellow-600/60">🟡 Médio</span>`;
             return `<span class="px-3 py-1 text-xs font-black rounded-full bg-red-950 text-red-300 border border-red-600/60">🔴 Alto</span>`;
         }
