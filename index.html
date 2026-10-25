@@ -342,7 +342,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE AUTH & LOGIC -->
+    <!-- SCRIPT FIREBASE AUTH & REDIRECT LOGIC -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyActzsOuSUB2ubawHTnYc_2hzSSkTPMdfc",
@@ -364,25 +364,28 @@
         let yieldChartInstance = null;
         let yoyChartInstance = null;
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
             db = firebase.firestore();
             auth = firebase.auth();
 
-            // Monitora mudança de estado de autenticação do Google
+            try {
+                // Trata o retorno do redirecionamento do Google
+                const result = await auth.getRedirectResult();
+                if (result && result.user) {
+                    validateAndProceed(result.user);
+                }
+            } catch (error) {
+                console.error("Erro no redirecionamento Google:", error);
+                showAuthError("Erro na autenticação com o Google.");
+            }
+
+            // Monitora mudança de estado de autenticação
             auth.onAuthStateChanged(user => {
-                const errorMsg = document.getElementById("auth-error-msg");
                 if (user) {
-                    if (user.email === ALLOWED_EMAIL) {
-                        errorMsg.classList.add("hidden");
-                        unlockSystem(user.email);
-                    } else {
-                        errorMsg.innerText = `Acesso negado para o e-mail (${user.email}). Apenas ${ALLOWED_EMAIL} é permitido.`;
-                        errorMsg.classList.remove("hidden");
-                        auth.signOut();
-                    }
+                    validateAndProceed(user);
                 } else {
                     lockSystem();
                 }
@@ -391,12 +394,29 @@
 
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(error => {
-                console.error("Erro no login Google:", error);
-                const errorMsg = document.getElementById("auth-error-msg");
-                errorMsg.innerText = "Erro ao autenticar com o Google. Tente novamente.";
-                errorMsg.classList.remove("hidden");
+            // Utiliza redirect em vez de popup para evitar bloqueadores e fechamento repentino
+            auth.signInWithRedirect(provider).catch(error => {
+                console.error("Erro ao iniciar login redirect:", error);
+                showAuthError("Não foi possível iniciar o login com o Google.");
             });
+        }
+
+        function validateAndProceed(user) {
+            const errorMsg = document.getElementById("auth-error-msg");
+            if (user.email === ALLOWED_EMAIL) {
+                errorMsg.classList.add("hidden");
+                unlockSystem(user.email);
+            } else {
+                errorMsg.innerText = `Acesso negado para (${user.email}). Apenas ${ALLOWED_EMAIL} é permitido.`;
+                errorMsg.classList.remove("hidden");
+                auth.signOut();
+            }
+        }
+
+        function showAuthError(msg) {
+            const errorMsg = document.getElementById("auth-error-msg");
+            errorMsg.innerText = msg;
+            errorMsg.classList.remove("hidden");
         }
 
         function unlockSystem(email) {
@@ -438,7 +458,6 @@
         }
 
         async function saveData() {
-            // Histórico mensal automático
             const now = new Date();
             const yearMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             
@@ -799,7 +818,7 @@
         function formatCurrency(val) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0); }
         function formatDate(ds) { if (!ds) return '---'; const [y, m, d] = ds.split('-'); return `${d}/${m}/${y}`; }
         function getRiskBadge(r) {
-            if (r === 'Baixo') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-green-950 text-green-300 border border-green-600/60">🟢 Baixo</span>`;
+            if (r === 'Baixo') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-green-950 text-green-300 border border-green-600/60">🟢 Baixo</span>`, r;
             if (r === 'Médio') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-yellow-950 text-yellow-300 border border-yellow-600/60">🟡 Médio</span>`;
             return `<span class="px-3 py-1 text-xs font-black rounded-full bg-red-950 text-red-300 border border-red-600/60">🔴 Alto</span>`;
         }
