@@ -125,9 +125,9 @@
         </header>
 
         <!-- CONTEÚDO PRINCIPAL EM ABAS -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
             
-            <nav aria-label="Navegação" class="flex space-x-2 border-b-2 border-gray-800 mb-8 overflow-x-auto pb-1">
+            <nav aria-label="Navegação" class="flex space-x-2 border-b-2 border-gray-800 overflow-x-auto pb-1">
                 <button onclick="switchTab('active')" id="tab-btn-active" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-emerald-500 text-emerald-400 bg-gray-900 shadow-md">
                     <i class="fa-solid fa-list-check text-base"></i>
                     <span>Carteira Ativa</span>
@@ -159,7 +159,7 @@
                             <i class="fa-solid fa-list-check text-emerald-400 text-2xl"></i>
                             <span>Carteira Ativa de Investimentos</span>
                         </h2>
-                        <p class="text-sm text-gray-400 mt-1">Atualize os saldos das checagens e registre movimentações (Aportes/Resgates).</p>
+                        <p class="text-sm text-gray-400 mt-1">Atualize os saldos das checagens e registre movimentações ou edite os dados dos fundos.</p>
                     </div>
                     <button onclick="saveAllCurrentBalances()" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-sm shadow-lg shadow-emerald-950 transition-all flex items-center space-x-2">
                         <i class="fa-solid fa-floppy-disk text-base"></i>
@@ -174,7 +174,6 @@
                                 <tr>
                                     <th scope="col" class="py-4 px-6">Nome do Fundo</th>
                                     <th scope="col" class="py-4 px-6">Risco</th>
-                                    <th scope="col" class="py-4 px-6">Abertura</th>
                                     <th scope="col" class="py-4 px-6 text-right">Saldo Base</th>
                                     <th scope="col" class="py-4 px-6 text-center">Saldo Atual & Salvar</th>
                                     <th scope="col" class="py-4 px-6 text-right">Rendimento Líquido</th>
@@ -209,35 +208,77 @@
                     </div>
                 </div>
 
-                <!-- COMPARATIVO ANUAL (YoY) -->
+                <!-- QUADRO DE INVESTIMENTOS RECOMENDADO -->
                 <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl space-y-4">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 border-gray-800 pb-4">
+                    <div class="border-b-2 border-gray-800 pb-4">
                         <h3 class="text-lg font-black text-white flex items-center space-x-3">
-                            <i class="fa-solid fa-calendar-days text-emerald-400 text-xl"></i>
-                            <span>Comparativo Anual de Rendimento Líquido (Mensal)</span>
+                            <i class="fa-solid fa-scale-balanced text-emerald-400 text-xl"></i>
+                            <span>Quadro de Investimentos Recomendado (Alocação Ideal)</span>
                         </h3>
-                        <div class="flex items-center space-x-2">
-                            <label for="yoy-year-select" class="text-xs font-bold text-gray-300">Ano Base:</label>
-                            <select id="yoy-year-select" onchange="updateYoYChart()" class="bg-gray-950 border border-gray-700 text-white font-bold text-xs rounded-xl px-3 py-1.5">
-                            </select>
-                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Meta: 80% Baixo Risco | 15% Médio Risco | 5% Alto Risco</p>
                     </div>
-                    <div class="h-72 relative">
-                        <canvas id="yoyChart"></canvas>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-200">
+                            <thead class="bg-gray-950 text-gray-300 uppercase text-xs font-black border-b-2 border-gray-800">
+                                <tr>
+                                    <th class="py-3 px-6">Nível de Risco</th>
+                                    <th class="py-3 px-6 text-center">% Recomendado</th>
+                                    <th class="py-3 px-6 text-right">Valor Recomendado (R$)</th>
+                                    <th class="py-3 px-6 text-right">Saldo Atual (R$)</th>
+                                    <th class="py-3 px-6 text-right">Diferença (Ajuste)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recommended-allocation-tbody" class="divide-y divide-gray-800 font-mono"></tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- ANÁLISE COMPARATIVA: PORTFÓLIO VS. POUPANÇA -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl space-y-4">
+                        <h3 class="text-lg font-black text-white flex items-center space-x-3 border-b-2 border-gray-800 pb-4">
+                            <i class="fa-solid fa-piggy-bank text-emerald-400 text-xl"></i>
+                            <span>Análise Comparativa (Portfólio vs. Poupança)</span>
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-200">
+                                <thead class="bg-gray-950 text-gray-300 uppercase text-xs font-black border-b-2 border-gray-800">
+                                    <tr>
+                                        <th class="py-3 px-4">Modalidade</th>
+                                        <th class="py-3 px-4 text-right">Saldo Atual (R$)</th>
+                                        <th class="py-3 px-4 text-right">Lucro Líquido (R$)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparison-table-tbody" class="divide-y divide-gray-800 font-mono text-xs"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl flex flex-col justify-between">
+                        <h3 class="text-base font-extrabold text-white mb-2">Participação Patrimonial</h3>
+                        <div class="h-56 relative flex items-center justify-center">
+                            <canvas id="comparisonPieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICOS DE RISCO E YOY -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
-                        <h3 class="text-base font-extrabold text-white mb-4">Alocação por Risco</h3>
+                        <h3 class="text-base font-extrabold text-white mb-4">Alocação Atual por Risco</h3>
                         <div class="h-64 relative flex items-center justify-center">
                             <canvas id="riskChart"></canvas>
                         </div>
                     </div>
-                    <div class="lg:col-span-2 bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
-                        <h3 class="text-base font-extrabold text-white mb-4">Rendimento Líquido por Fundo (R$)</h3>
-                        <div class="h-64 relative">
-                            <canvas id="yieldChart"></canvas>
+
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl space-y-4">
+                        <div class="flex justify-between items-center border-b-2 border-gray-800 pb-3">
+                            <h3 class="text-base font-extrabold text-white">Comparativo Anual (YoY) & Histórico Mensal</h3>
+                            <select id="yoy-year-select" onchange="updateYoYChart()" class="bg-gray-950 border border-gray-700 text-white font-bold text-xs rounded-xl px-3 py-1.5">
+                            </select>
+                        </div>
+                        <div class="h-60 relative">
+                            <canvas id="yoyChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -262,13 +303,9 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-200 mb-2">Abertura *</label>
-                                <input type="date" id="reg-opening-date" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
+                                <label class="block text-sm font-bold text-gray-200 mb-2">Valor Inicial (R$) *</label>
+                                <input type="number" step="0.01" id="reg-initial-value" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold">
                             </div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-200 mb-2">Valor Inicial (R$) *</label>
-                            <input type="number" step="0.01" id="reg-initial-value" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-200 mb-2">Observações</label>
@@ -305,6 +342,36 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- MODAL EDITAR FUNDO -->
+    <div id="edit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-800 shadow-2xl space-y-6">
+            <h3 class="text-lg font-black text-white">Editar Fundo</h3>
+            <form id="edit-form" onsubmit="confirmEditFund(event)" class="space-y-4">
+                <input type="hidden" id="edit-fund-id">
+                <div>
+                    <label class="block text-sm font-bold text-gray-200 mb-1">Nome do Fundo</label>
+                    <input type="text" id="edit-name" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-2.5 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-200 mb-1">Risco</label>
+                    <select id="edit-risk" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-2.5 text-white">
+                        <option value="Baixo">🟢 Baixo</option>
+                        <option value="Médio">🟡 Médio</option>
+                        <option value="Alto">🔴 Alto</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-200 mb-1">Observações</label>
+                    <textarea id="edit-notes" rows="2" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-2.5 text-white"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm">Cancelar</button>
+                    <button type="submit" class="px-6 py-2.5 bg-emerald-600 text-white font-extrabold rounded-xl text-sm">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- MODAL APORTE / RESGATE -->
@@ -361,7 +428,7 @@
         let historicalSnapshots = {};
 
         let riskChartInstance = null;
-        let yieldChartInstance = null;
+        let comparisonPieInstance = null;
         let yoyChartInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -370,7 +437,6 @@
             }
             db = firebase.firestore();
 
-            // Verifica se já estava logado na sessão atual
             if (sessionStorage.getItem("financeiro_auth") === "true") {
                 unlockSystem();
             }
@@ -394,7 +460,6 @@
         function unlockSystem() {
             document.getElementById("auth-overlay").classList.add("hidden");
             document.getElementById("app-content").classList.remove("hidden");
-            document.getElementById('reg-opening-date').value = new Date().toISOString().split('T')[0];
             loadInvestmentsData();
             initCharts();
         }
@@ -483,6 +548,8 @@
             renderActiveTable();
             renderClosedTable();
             renderMetrics();
+            renderRecommendedAllocation();
+            renderComparisonTable();
             updateCharts();
             populateYearSelector();
             updateYoYChart();
@@ -504,13 +571,12 @@
             e.preventDefault();
             const name = document.getElementById('reg-name').value;
             const risk = document.getElementById('reg-risk').value;
-            const openingDate = document.getElementById('reg-opening-date').value;
             const initialValue = parseFloat(document.getElementById('reg-initial-value').value);
             const notes = document.getElementById('reg-notes').value;
 
             const newFund = {
                 id: 'fund_' + Date.now(),
-                name, risk, openingDate,
+                name, risk,
                 initialValue,
                 baseValue: initialValue,
                 currentBalance: initialValue,
@@ -522,7 +588,6 @@
             investments.push(newFund);
             await saveData();
             document.getElementById('register-fund-form').reset();
-            document.getElementById('reg-opening-date').value = new Date().toISOString().split('T')[0];
             showToast(`Fundo "${name}" cadastrado!`);
             switchTab('active');
         }
@@ -533,7 +598,7 @@
             document.getElementById('active-count-badge').innerText = activeItems.length;
 
             if (activeItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-gray-400 font-medium">Nenhum fundo ativo.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-gray-400 font-medium">Nenhum fundo ativo.</td></tr>`;
                 return;
             }
 
@@ -547,7 +612,6 @@
                     <tr class="hover:bg-gray-800/60 transition-colors">
                         <td class="py-4 px-6 font-bold text-white">${item.name} ${item.notes ? `<p class="text-xs text-gray-400 font-normal mt-0.5">${item.notes}</p>` : ''}</td>
                         <td class="py-4 px-6">${getRiskBadge(item.risk)}</td>
-                        <td class="py-4 px-6 text-gray-300">${formatDate(item.openingDate)}</td>
                         <td class="py-4 px-6 text-right font-mono font-bold text-gray-200">${formatCurrency(base)}</td>
                         <td class="py-4 px-6 text-center">
                             <div class="flex items-center justify-center space-x-2">
@@ -559,9 +623,10 @@
                             ${isPositive ? '+' : ''}${formatCurrency(yieldVal)}<span class="block text-xs font-semibold">(${isPositive ? '+' : ''}${yieldPct.toFixed(2)}%)</span>
                         </td>
                         <td class="py-4 px-6 text-center space-x-2">
-                            <button onclick="openMovementModal('${item.id}')" class="p-2.5 bg-blue-950 text-blue-300 rounded-xl border border-blue-700/60"><i class="fa-solid fa-right-left"></i></button>
-                            <button onclick="openLiquidateModal('${item.id}')" class="p-2.5 bg-purple-950 text-purple-200 rounded-xl border border-purple-700/60"><i class="fa-solid fa-box-archive"></i></button>
-                            <button onclick="deleteInvestment('${item.id}')" class="p-2.5 bg-red-950 text-red-300 rounded-xl border border-red-700/60"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="openEditModal('${item.id}')" title="Editar Fundo" class="p-2.5 bg-gray-800 text-gray-200 rounded-xl border border-gray-700"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="openMovementModal('${item.id}')" title="Aporte / Resgate" class="p-2.5 bg-blue-950 text-blue-300 rounded-xl border border-blue-700/60"><i class="fa-solid fa-right-left"></i></button>
+                            <button onclick="openLiquidateModal('${item.id}')" title="Liquidar Fundo" class="p-2.5 bg-purple-950 text-purple-200 rounded-xl border border-purple-700/60"><i class="fa-solid fa-box-archive"></i></button>
+                            <button onclick="deleteInvestment('${item.id}')" title="Excluir" class="p-2.5 bg-red-950 text-red-300 rounded-xl border border-red-700/60"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -596,6 +661,32 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        function openEditModal(id) {
+            const fund = investments.find(i => i.id === id);
+            if (!fund) return;
+            document.getElementById('edit-fund-id').value = fund.id;
+            document.getElementById('edit-name').value = fund.name;
+            document.getElementById('edit-risk').value = fund.risk;
+            document.getElementById('edit-notes').value = fund.notes || '';
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
+
+        async function confirmEditFund(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-fund-id').value;
+            const fund = investments.find(i => i.id === id);
+            if (fund) {
+                fund.name = document.getElementById('edit-name').value;
+                fund.risk = document.getElementById('edit-risk').value;
+                fund.notes = document.getElementById('edit-notes').value;
+                await saveData();
+                closeEditModal();
+                showToast("Fundo atualizado com sucesso!");
+            }
         }
 
         function openMovementModal(id) {
@@ -713,17 +804,118 @@
             document.getElementById('metric-realized-profit').innerText = formatCurrency(realizedProfit);
         }
 
+        function renderRecommendedAllocation() {
+            const active = investments.filter(i => i.status === 'active');
+            const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
+
+            const currentLow = active.filter(i => i.risk === 'Baixo').reduce((a, c) => a + c.currentBalance, 0);
+            const currentMed = active.filter(i => i.risk === 'Médio').reduce((a, c) => a + c.currentBalance, 0);
+            const currentHigh = active.filter(i => i.risk === 'Alto').reduce((a, c) => a + c.currentBalance, 0);
+
+            const recLowVal = totalCurrent * 0.80;
+            const recMedVal = totalCurrent * 0.15;
+            const recHighVal = totalCurrent * 0.05;
+
+            const diffLow = currentLow - recLowVal;
+            const diffMed = currentMed - recMedVal;
+            const diffHigh = currentHigh - recHighVal;
+
+            const rows = [
+                { label: '🟢 Baixo Risco', pct: '80%', rec: recLowVal, cur: currentLow, diff: diffLow },
+                { label: '🟡 Médio Risco', pct: '15%', rec: recMedVal, cur: currentMed, diff: diffMed },
+                { label: '🔴 Alto Risco', pct: '5%', rec: recHighVal, cur: currentHigh, diff: diffHigh }
+            ];
+
+            const tbody = document.getElementById('recommended-allocation-tbody');
+            tbody.innerHTML = rows.map(r => {
+                const diffColor = r.diff >= 0 ? 'text-emerald-400' : 'text-red-400';
+                const diffSign = r.diff >= 0 ? '+' : '';
+                return `
+                    <tr class="hover:bg-gray-800/60">
+                        <td class="py-3 px-6 font-bold text-white">${r.label}</td>
+                        <td class="py-3 px-6 text-center font-bold text-emerald-400">${r.pct}</td>
+                        <td class="py-3 px-6 text-right">${formatCurrency(r.rec)}</td>
+                        <td class="py-3 px-6 text-right font-bold">${formatCurrency(r.cur)}</td>
+                        <td class="py-3 px-6 text-right font-bold ${diffColor}">${diffSign}${formatCurrency(r.diff)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderComparisonTable() {
+            const active = investments.filter(i => i.status === 'active');
+            const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
+            const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue || curr.initialValue), 0);
+            const portfolioProfit = totalCurrent - totalBase;
+
+            // Estimativa poupança (exemplo aproximado de rendimento histórico base 6% a.a. sobre a base aplicada ou simulada)
+            const savingsBalance = totalBase * 1.05; 
+            const savingsProfit = savingsBalance - totalBase;
+
+            const tbody = document.getElementById('comparison-table-tbody');
+            tbody.innerHTML = `
+                <tr class="hover:bg-gray-800/60">
+                    <td class="py-3 px-4 font-bold text-emerald-400">Meu Portfólio Ativo</td>
+                    <td class="py-3 px-4 text-right font-bold text-white">${formatCurrency(totalCurrent)}</td>
+                    <td class="py-3 px-4 text-right font-bold text-emerald-400">${formatCurrency(portfolioProfit)}</td>
+                </tr>
+                <tr class="hover:bg-gray-800/60">
+                    <td class="py-3 px-4 font-bold text-gray-400">Caderneta de Poupança (Ref.)</td>
+                    <td class="py-3 px-4 text-right text-gray-300">${formatCurrency(savingsBalance)}</td>
+                    <td class="py-3 px-4 text-right text-gray-300">${formatCurrency(savingsProfit)}</td>
+                </tr>
+            `;
+
+            if (comparisonPieInstance) {
+                comparisonPieInstance.data.datasets[0].data = [totalCurrent, savingsBalance];
+                comparisonPieInstance.update();
+            }
+        }
+
         function initCharts() {
             riskChartInstance = new Chart(document.getElementById('riskChart').getContext('2d'), {
                 type: 'doughnut',
                 data: { labels: ['Baixo', 'Médio', 'Alto'], datasets: [{ data: [0, 0, 0], backgroundColor: ['#22c55e', '#eab308', '#ef4444'], borderWidth: 0 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#e5e7eb', font: { weight: 'bold' } } } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e5e7eb',
+                                font: { weight: 'bold', size: 12 },
+                                generateLabels: (chart) => {
+                                    const data = chart.data;
+                                    const total = data.datasets[0].data.reduce((acc, val) => acc + val, 0);
+                                    return data.labels.map((label, i) => {
+                                        const val = data.datasets[0].data[i];
+                                        const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
+                                        return {
+                                            text: `${label}: ${formatCurrency(val)} (${pct}%)`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
             });
 
-            yieldChartInstance = new Chart(document.getElementById('yieldChart').getContext('2d'), {
-                type: 'bar',
-                data: { labels: [], datasets: [{ data: [], backgroundColor: '#10b981', borderRadius: 8 }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { x: { ticks: { color: '#9ca3af' }, grid: { display: false } }, y: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } } }, plugins: { legend: { display: false } } }
+            comparisonPieInstance = new Chart(document.getElementById('comparisonPieChart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['Portfólio Atual', 'Poupança (Simulado)'],
+                    datasets: [{ data: [0, 0], backgroundColor: ['#22c55e', '#6b7280'], borderWidth: 0 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#e5e7eb', font: { weight: 'bold' } } } }
+                }
             });
 
             yoyChartInstance = new Chart(document.getElementById('yoyChart').getContext('2d'), {
@@ -748,10 +940,6 @@
                 active.filter(i => i.risk === 'Alto').reduce((a, c) => a + c.currentBalance, 0)
             ];
             riskChartInstance.update();
-
-            yieldChartInstance.data.labels = active.map(i => i.name);
-            yieldChartInstance.data.datasets[0].data = active.map(i => i.currentBalance - (i.baseValue || i.initialValue));
-            yieldChartInstance.update();
         }
 
         function populateYearSelector() {
