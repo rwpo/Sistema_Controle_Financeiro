@@ -208,64 +208,64 @@
                     </div>
                 </div>
 
-                <!-- QUADRO DE INVESTIMENTOS RECOMENDADO -->
-                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-4">
-                    <div class="border-b-2 border-gray-800 pb-4">
-                        <h3 class="text-lg font-black text-white flex items-center space-x-3">
-                            <i class="fa-solid fa-scale-balanced text-emerald-400 text-xl"></i>
+                <!-- QUADRO DE INVESTIMENTOS RECOMENDADO (CONTAINER CLARO / FONTE PRETA) -->
+                <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 shadow-xl space-y-4 text-gray-900">
+                    <div class="border-b-2 border-slate-300 pb-4">
+                        <h3 class="text-lg font-black text-gray-900 flex items-center space-x-3">
+                            <i class="fa-solid fa-scale-balanced text-emerald-700 text-xl"></i>
                             <span>Quadro de Investimentos Recomendado (Alocação Ideal)</span>
                         </h3>
-                        <p class="text-xs text-white mt-1">Meta: 80% Baixo Risco | 15% Médio Risco | 5% Alto Risco</p>
+                        <p class="text-xs font-bold text-gray-700 mt-1">Meta: 80% Baixo Risco | 15% Médio Risco | 5% Alto Risco</p>
                     </div>
-                    <div class="overflow-x-auto bg-black/40 rounded-xl p-2 border border-gray-800">
-                        <table class="w-full text-left text-sm text-white">
-                            <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b-2 border-gray-700">
+                    <div class="overflow-x-auto bg-white rounded-xl p-2 border border-slate-300 shadow-inner">
+                        <table class="w-full text-left text-sm text-gray-900">
+                            <thead class="bg-slate-200 text-gray-900 uppercase text-xs font-black border-b-2 border-slate-300">
                                 <tr>
-                                    <th class="py-3 px-6 text-white font-bold">Nível de Risco</th>
-                                    <th class="py-3 px-6 text-center text-white font-bold">% Recomendado</th>
-                                    <th class="py-3 px-6 text-right text-white font-bold">Valor Recomendado (R$)</th>
-                                    <th class="py-3 px-6 text-right text-white font-bold">Saldo Atual (R$)</th>
-                                    <th class="py-3 px-6 text-right text-white font-bold">Diferença (Ajuste)</th>
+                                    <th class="py-3 px-6 text-gray-900 font-extrabold">Nível de Risco</th>
+                                    <th class="py-3 px-6 text-center text-gray-900 font-extrabold">% Recomendado</th>
+                                    <th class="py-3 px-6 text-right text-gray-900 font-extrabold">Valor Recomendado (R$)</th>
+                                    <th class="py-3 px-6 text-right text-gray-900 font-extrabold">Saldo Atual (R$)</th>
+                                    <th class="py-3 px-6 text-right text-gray-900 font-extrabold">Diferença (Ajuste)</th>
                                 </tr>
                             </thead>
-                            <tbody id="recommended-allocation-tbody" class="divide-y divide-gray-800 font-mono text-white"></tbody>
+                            <tbody id="recommended-allocation-tbody" class="divide-y divide-slate-200 font-mono text-gray-900 font-bold"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- ANÁLISE COMPARATIVA: PORTFÓLIO VS. POUPANÇA -->
+                <!-- ANÁLISE COMPARATIVA: PORTFÓLIO VS. POUPANÇA (E GRÁFICO CLARO COM FONTE PRETA) -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-4">
-                        <h3 class="text-lg font-black text-white flex items-center space-x-3 border-b-2 border-gray-800 pb-4">
-                            <i class="fa-solid fa-piggy-bank text-emerald-400 text-xl"></i>
+                    <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 shadow-xl space-y-4 text-gray-900">
+                        <h3 class="text-lg font-black text-gray-900 flex items-center space-x-3 border-b-2 border-slate-300 pb-4">
+                            <i class="fa-solid fa-piggy-bank text-emerald-700 text-xl"></i>
                             <span>Análise Comparativa (Portfólio Ativo vs. Poupança)</span>
                         </h3>
-                        <div class="overflow-x-auto bg-black/40 rounded-xl p-2 border border-gray-800">
-                            <table class="w-full text-left text-sm text-white">
-                                <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b-2 border-gray-700">
+                        <div class="overflow-x-auto bg-white rounded-xl p-2 border border-slate-300 shadow-inner">
+                            <table class="w-full text-left text-sm text-gray-900">
+                                <thead class="bg-slate-200 text-gray-900 uppercase text-xs font-black border-b-2 border-slate-300">
                                     <tr>
-                                        <th class="py-3 px-4 text-white font-bold">Modalidade</th>
-                                        <th class="py-3 px-4 text-right text-white font-bold">Saldo Atual (R$)</th>
-                                        <th class="py-3 px-4 text-right text-white font-bold">Lucro Líquido (R$)</th>
+                                        <th class="py-3 px-4 text-gray-900 font-extrabold">Modalidade</th>
+                                        <th class="py-3 px-4 text-right text-gray-900 font-extrabold">Saldo Atual (R$)</th>
+                                        <th class="py-3 px-4 text-right text-gray-900 font-extrabold">Lucro Líquido (R$)</th>
                                     </tr>
                                 </thead>
-                                <tbody id="comparison-table-tbody" class="divide-y divide-gray-800 font-mono text-xs text-white"></tbody>
+                                <tbody id="comparison-table-tbody" class="divide-y divide-slate-200 font-mono text-xs text-gray-900 font-bold"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl flex flex-col justify-between">
-                        <h3 class="text-base font-extrabold text-white mb-2">Participação Patrimonial</h3>
+                    <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 shadow-xl flex flex-col justify-between text-gray-900">
+                        <h3 class="text-base font-black text-gray-900 mb-2">Participação Patrimonial</h3>
                         <div class="h-64 relative flex items-center justify-center">
                             <canvas id="comparisonPieChart"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- GRÁFICOS DE RISCO E YOY -->
+                <!-- GRÁFICOS DE RISCO CLARO E YOY -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
-                        <h3 class="text-base font-extrabold text-white mb-4">Alocação Atual por Risco</h3>
+                    <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 shadow-xl text-gray-900">
+                        <h3 class="text-base font-black text-gray-900 mb-4">Alocação Atual por Risco</h3>
                         <div class="h-64 relative flex items-center justify-center">
                             <canvas id="riskChart"></canvas>
                         </div>
@@ -828,15 +828,15 @@
 
             const tbody = document.getElementById('recommended-allocation-tbody');
             tbody.innerHTML = rows.map(r => {
-                const diffColor = r.diff >= 0 ? 'text-emerald-400' : 'text-red-400';
+                const diffColor = r.diff >= 0 ? 'text-emerald-700' : 'text-red-700';
                 const diffSign = r.diff >= 0 ? '+' : '';
                 return `
-                    <tr class="hover:bg-gray-800 text-white">
-                        <td class="py-3 px-6 font-bold text-white">${r.label}</td>
-                        <td class="py-3 px-6 text-center font-bold text-white">${r.pct}</td>
-                        <td class="py-3 px-6 text-right text-white">${formatCurrency(r.rec)}</td>
-                        <td class="py-3 px-6 text-right font-bold text-white">${formatCurrency(r.cur)}</td>
-                        <td class="py-3 px-6 text-right font-bold ${diffColor}">${diffSign}${formatCurrency(r.diff)}</td>
+                    <tr class="hover:bg-slate-50 text-gray-900 font-extrabold">
+                        <td class="py-3 px-6 text-gray-900">${r.label}</td>
+                        <td class="py-3 px-6 text-center text-gray-900">${r.pct}</td>
+                        <td class="py-3 px-6 text-right text-gray-900">${formatCurrency(r.rec)}</td>
+                        <td class="py-3 px-6 text-right text-gray-900">${formatCurrency(r.cur)}</td>
+                        <td class="py-3 px-6 text-right ${diffColor}">${diffSign}${formatCurrency(r.diff)}</td>
                     </tr>
                 `;
             }).join('');
@@ -857,15 +857,15 @@
 
             const tbody = document.getElementById('comparison-table-tbody');
             tbody.innerHTML = `
-                <tr class="hover:bg-gray-800 text-white">
-                    <td class="py-3 px-4 font-bold text-white">Portfólio Ativo (Demais Investimentos)</td>
-                    <td class="py-3 px-4 text-right font-bold text-white">${formatCurrency(otherBalance)}</td>
-                    <td class="py-3 px-4 text-right font-bold text-emerald-400">${formatCurrency(otherProfit)}</td>
+                <tr class="hover:bg-slate-50 text-gray-900 font-extrabold">
+                    <td class="py-3 px-4 text-gray-900">Portfólio Ativo (Demais Investimentos)</td>
+                    <td class="py-3 px-4 text-right text-gray-900">${formatCurrency(otherBalance)}</td>
+                    <td class="py-3 px-4 text-right text-emerald-700">${formatCurrency(otherProfit)}</td>
                 </tr>
-                <tr class="hover:bg-gray-800 text-white">
-                    <td class="py-3 px-4 font-bold text-white">POUPANÇA</td>
-                    <td class="py-3 px-4 text-right font-bold text-white">${formatCurrency(poupancaBalance)}</td>
-                    <td class="py-3 px-4 text-right font-bold text-amber-300">${formatCurrency(poupancaProfit)}</td>
+                <tr class="hover:bg-slate-50 text-gray-900 font-extrabold">
+                    <td class="py-3 px-4 text-gray-900">POUPANÇA</td>
+                    <td class="py-3 px-4 text-right text-gray-900">${formatCurrency(poupancaBalance)}</td>
+                    <td class="py-3 px-4 text-right text-amber-700">${formatCurrency(poupancaProfit)}</td>
                 </tr>
             `;
 
@@ -876,15 +876,16 @@
         }
 
         function initCharts() {
+            // Gráfico Alocação Atual por Risco (Legendas com texto Preto para Fundo Claro)
             riskChartInstance = new Chart(document.getElementById('riskChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: ['Baixo Risco', 'Médio Risco', 'Alto Risco'],
                     datasets: [{
                         data: [0, 0, 0],
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        backgroundColor: ['#16a34a', '#d97706', '#dc2626'],
                         borderWidth: 2,
-                        borderColor: '#000000'
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: {
@@ -894,7 +895,7 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                color: '#ffffff',
+                                color: '#111827',
                                 font: { weight: 'bold', size: 13 },
                                 padding: 16,
                                 generateLabels: (chart) => {
@@ -906,7 +907,7 @@
                                         return {
                                             text: `${label}: ${formatCurrency(val)} (${pct}%)`,
                                             fillStyle: data.datasets[0].backgroundColor[i],
-                                            strokeStyle: '#000000',
+                                            strokeStyle: '#ffffff',
                                             lineWidth: 1,
                                             hidden: false,
                                             index: i
@@ -919,15 +920,16 @@
                 }
             });
 
+            // Gráfico Participação Patrimonial (Legendas com texto Preto para Fundo Claro)
             comparisonPieInstance = new Chart(document.getElementById('comparisonPieChart').getContext('2d'), {
                 type: 'pie',
                 data: {
                     labels: ['Portfólio Ativo', 'POUPANÇA'],
                     datasets: [{
                         data: [0, 0],
-                        backgroundColor: ['#10b981', '#f59e0b'],
+                        backgroundColor: ['#16a34a', '#d97706'],
                         borderWidth: 2,
-                        borderColor: '#000000'
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: {
@@ -937,7 +939,7 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                color: '#ffffff',
+                                color: '#111827',
                                 font: { weight: 'bold', size: 13 },
                                 padding: 16,
                                 generateLabels: (chart) => {
@@ -949,7 +951,7 @@
                                         return {
                                             text: `${label}: ${formatCurrency(val)} (${pct}%)`,
                                             fillStyle: data.datasets[0].backgroundColor[i],
-                                            strokeStyle: '#000000',
+                                            strokeStyle: '#ffffff',
                                             lineWidth: 1,
                                             hidden: false,
                                             index: i
