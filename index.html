@@ -46,7 +46,7 @@
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #030712;
+            background: #000000;
         }
         ::-webkit-scrollbar-thumb {
             background: #4b5563;
@@ -57,12 +57,12 @@
         }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
+<body class="bg-black text-white min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
 
     <!-- TELA DE AUTENTICAÇÃO (SENHA INTERNA) -->
-    <div id="auth-overlay" class="fixed inset-0 bg-gray-950/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-        <div class="bg-gray-900 rounded-3xl max-w-md w-full p-8 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-950 text-center space-y-6">
-            <div class="inline-flex p-4 bg-emerald-950 text-emerald-400 rounded-2xl border border-emerald-500/60 shadow-inner">
+    <div id="auth-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-900 rounded-3xl max-w-md w-full p-8 border-2 border-emerald-500 shadow-2xl shadow-emerald-950 text-center space-y-6">
+            <div class="inline-flex p-4 bg-emerald-950 text-emerald-400 rounded-2xl border border-emerald-500 shadow-inner">
                 <i class="fa-solid fa-lock text-3xl" aria-hidden="true"></i>
             </div>
             
@@ -73,10 +73,10 @@
 
             <form onsubmit="handleAuth(event)" class="space-y-4">
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-300">
                         <i class="fa-solid fa-key"></i>
                     </span>
-                    <input type="password" id="auth-password" required placeholder="Digite a senha de acesso" class="w-full bg-gray-950 border-2 border-gray-700 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-gray-400 font-bold focus:border-emerald-400 focus:outline-none transition-all">
+                    <input type="password" id="auth-password" required placeholder="Digite a senha de acesso" class="w-full bg-gray-950 border-2 border-gray-600 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-gray-400 font-bold focus:border-emerald-400 focus:outline-none transition-all">
                 </div>
                 <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-2xl shadow-lg shadow-emerald-950 transition-all text-base">
                     Entrar no Sistema
@@ -84,7 +84,7 @@
                 <p id="auth-error" class="text-xs font-bold text-red-400 hidden">Senha incorreta. Tente novamente.</p>
             </form>
 
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Desenvolvido por Ricardo Wagner</p>
+            <p class="text-[10px] text-gray-300 uppercase tracking-widest font-bold">Desenvolvido por Ricardo Wagner</p>
         </div>
     </div>
 
@@ -110,7 +110,7 @@
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div id="firebase-status-badge" class="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border-2 border-emerald-500/60 shadow-inner">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>Firebase Conectado</span>
+                        <span class="text-white">Firebase Conectado</span>
                     </div>
 
                     <button id="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" class="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-amber-300 border border-gray-600 transition-all font-bold text-sm">
@@ -128,23 +128,23 @@
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
             
             <nav aria-label="Navegação" class="flex space-x-2 border-b-2 border-gray-800 overflow-x-auto pb-1">
-                <button onclick="switchTab('active')" id="tab-btn-active" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-emerald-500 text-emerald-400 bg-gray-900 shadow-md">
+                <button onclick="switchTab('active')" id="tab-btn-active" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-emerald-500 text-white bg-gray-900 shadow-md">
                     <i class="fa-solid fa-list-check text-base"></i>
                     <span>Carteira Ativa</span>
                     <span id="active-count-badge" class="ml-1.5 bg-emerald-950 text-emerald-300 border border-emerald-600/50 text-xs px-2.5 py-0.5 rounded-full font-extrabold">0</span>
                 </button>
 
-                <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-gray-300 hover:text-white hover:bg-gray-900/60">
+                <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-white hover:bg-gray-900/60">
                     <i class="fa-solid fa-chart-pie text-base"></i>
                     <span>Visão Geral</span>
                 </button>
 
-                <button onclick="switchTab('register')" id="tab-btn-register" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-gray-300 hover:text-white hover:bg-gray-900/60">
+                <button onclick="switchTab('register')" id="tab-btn-register" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-white hover:bg-gray-900/60">
                     <i class="fa-solid fa-circle-plus text-base"></i>
                     <span>Cadastrar Fundo</span>
                 </button>
 
-                <button onclick="switchTab('closed')" id="tab-btn-closed" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-gray-300 hover:text-white hover:bg-gray-900/60">
+                <button onclick="switchTab('closed')" id="tab-btn-closed" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-white hover:bg-gray-900/60">
                     <i class="fa-solid fa-box-archive text-base"></i>
                     <span>Fundos Encerrados</span>
                     <span id="closed-count-badge" class="ml-1.5 bg-purple-950 text-purple-300 border border-purple-600/50 text-xs px-2.5 py-0.5 rounded-full font-extrabold">0</span>
@@ -153,13 +153,13 @@
 
             <!-- ABA 1: CARTEIRA ATIVA -->
             <section id="tab-content-active" class="tab-content space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-900 p-6 rounded-2xl border-2 border-gray-800 shadow-xl">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-900 p-6 rounded-2xl border-2 border-gray-700 shadow-xl">
                     <div>
                         <h2 class="text-xl font-black text-white flex items-center space-x-3">
                             <i class="fa-solid fa-list-check text-emerald-400 text-2xl"></i>
                             <span>Carteira Ativa de Investimentos</span>
                         </h2>
-                        <p class="text-sm text-gray-300 mt-1">Atualize os saldos das checagens, registre movimentações ou edite os dados dos fundos.</p>
+                        <p class="text-sm text-white mt-1">Atualize os saldos das checagens, registre movimentações ou edite os dados dos fundos.</p>
                     </div>
                     <button onclick="saveAllCurrentBalances()" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-sm shadow-lg shadow-emerald-950 transition-all flex items-center space-x-2">
                         <i class="fa-solid fa-floppy-disk text-base"></i>
@@ -167,10 +167,10 @@
                     </button>
                 </div>
 
-                <div class="bg-gray-900 rounded-2xl border-2 border-gray-800 shadow-xl overflow-hidden">
+                <div class="bg-gray-900 rounded-2xl border-2 border-gray-700 shadow-xl overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-gray-100">
-                            <thead class="bg-gray-950 text-gray-200 uppercase text-xs font-black tracking-wider border-b-2 border-gray-800">
+                        <table class="w-full text-left text-sm text-white">
+                            <thead class="bg-gray-950 text-white uppercase text-xs font-black tracking-wider border-b-2 border-gray-700">
                                 <tr>
                                     <th scope="col" class="py-4 px-6">Nome do Fundo</th>
                                     <th scope="col" class="py-4 px-6">Risco</th>
@@ -189,37 +189,37 @@
             <!-- ABA 2: VISÃO GERAL -->
             <section id="tab-content-dashboard" class="tab-content hidden space-y-8">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
-                        <p class="text-xs font-bold text-gray-300 uppercase tracking-wider">Total Investido (Base)</p>
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Total Investido (Base)</p>
                         <h2 id="metric-total-initial" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
                     </div>
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
-                        <p class="text-xs font-bold text-gray-300 uppercase tracking-wider">Saldo Atual da Carteira</p>
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Saldo Atual da Carteira</p>
                         <h2 id="metric-total-current" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
                     </div>
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
-                        <p class="text-xs font-bold text-gray-300 uppercase tracking-wider">Lucro Não Realizado</p>
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Lucro Não Realizado</p>
                         <h2 id="metric-unrealized-profit" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
                         <p id="metric-unrealized-yield" class="text-xs font-extrabold text-emerald-400 mt-1.5">+0,00%</p>
                     </div>
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
-                        <p class="text-xs font-bold text-gray-300 uppercase tracking-wider">Lucro Realizado (Encerrados)</p>
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
+                        <p class="text-xs font-bold text-white uppercase tracking-wider">Lucro Realizado (Encerrados)</p>
                         <h2 id="metric-realized-profit" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
                     </div>
                 </div>
 
                 <!-- QUADRO DE INVESTIMENTOS RECOMENDADO -->
-                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl space-y-4">
+                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-4">
                     <div class="border-b-2 border-gray-800 pb-4">
                         <h3 class="text-lg font-black text-white flex items-center space-x-3">
                             <i class="fa-solid fa-scale-balanced text-emerald-400 text-xl"></i>
                             <span>Quadro de Investimentos Recomendado (Alocação Ideal)</span>
                         </h3>
-                        <p class="text-xs text-gray-300 mt-1">Meta: 80% Baixo Risco | 15% Médio Risco | 5% Alto Risco</p>
+                        <p class="text-xs text-white mt-1">Meta: 80% Baixo Risco | 15% Médio Risco | 5% Alto Risco</p>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm text-gray-100">
-                            <thead class="bg-gray-950 text-gray-200 uppercase text-xs font-black border-b-2 border-gray-800">
+                        <table class="w-full text-left text-sm text-white">
+                            <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b-2 border-gray-700">
                                 <tr>
                                     <th class="py-3 px-6">Nível de Risco</th>
                                     <th class="py-3 px-6 text-center">% Recomendado</th>
@@ -228,33 +228,33 @@
                                     <th class="py-3 px-6 text-right">Diferença (Ajuste)</th>
                                 </tr>
                             </thead>
-                            <tbody id="recommended-allocation-tbody" class="divide-y divide-gray-800 font-mono"></tbody>
+                            <tbody id="recommended-allocation-tbody" class="divide-y divide-gray-800 font-mono text-white"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <!-- ANÁLISE COMPARATIVA: PORTFÓLIO VS. POUPANÇA -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl space-y-4">
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-4">
                         <h3 class="text-lg font-black text-white flex items-center space-x-3 border-b-2 border-gray-800 pb-4">
                             <i class="fa-solid fa-piggy-bank text-emerald-400 text-xl"></i>
                             <span>Análise Comparativa (Portfólio Ativo vs. Poupança)</span>
                         </h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-gray-100">
-                                <thead class="bg-gray-950 text-gray-200 uppercase text-xs font-black border-b-2 border-gray-800">
+                            <table class="w-full text-left text-sm text-white">
+                                <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b-2 border-gray-700">
                                     <tr>
                                         <th class="py-3 px-4">Modalidade</th>
                                         <th class="py-3 px-4 text-right">Saldo Atual (R$)</th>
                                         <th class="py-3 px-4 text-right">Lucro Líquido (R$)</th>
                                     </tr>
                                 </thead>
-                                <tbody id="comparison-table-tbody" class="divide-y divide-gray-800 font-mono text-xs"></tbody>
+                                <tbody id="comparison-table-tbody" class="divide-y divide-gray-800 font-mono text-xs text-white"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl flex flex-col justify-between">
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl flex flex-col justify-between">
                         <h3 class="text-base font-extrabold text-white mb-2">Participação Patrimonial</h3>
                         <div class="h-64 relative flex items-center justify-center">
                             <canvas id="comparisonPieChart"></canvas>
@@ -264,17 +264,17 @@
 
                 <!-- GRÁFICOS DE RISCO E YOY -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl">
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
                         <h3 class="text-base font-extrabold text-white mb-4">Alocação Atual por Risco</h3>
                         <div class="h-64 relative flex items-center justify-center">
                             <canvas id="riskChart"></canvas>
                         </div>
                     </div>
 
-                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-800 shadow-xl space-y-4">
+                    <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-4">
                         <div class="flex justify-between items-center border-b-2 border-gray-800 pb-3">
                             <h3 class="text-base font-extrabold text-white">Comparativo Anual (YoY) & Histórico Mensal</h3>
-                            <select id="yoy-year-select" onchange="updateYoYChart()" class="bg-gray-950 border border-gray-700 text-white font-bold text-xs rounded-xl px-3 py-1.5">
+                            <select id="yoy-year-select" onchange="updateYoYChart()" class="bg-gray-950 border border-gray-600 text-white font-bold text-xs rounded-xl px-3 py-1.5">
                             </select>
                         </div>
                         <div class="h-60 relative">
@@ -286,30 +286,30 @@
 
             <!-- ABA 3: CADASTRAR -->
             <section id="tab-content-register" class="tab-content hidden max-w-3xl mx-auto">
-                <div class="bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-800 shadow-2xl">
+                <div class="bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-700 shadow-2xl">
                     <h2 class="text-xl font-black text-white mb-6 border-b-2 border-gray-800 pb-4">Cadastrar Novo Fundo</h2>
                     <form id="register-fund-form" onsubmit="handleRegisterFund(event)" class="space-y-6">
                         <div>
-                            <label class="block text-sm font-bold text-gray-200 mb-2">Nome do Fundo * (Para a caderneta tradicional, use o nome "POUPANÇA")</label>
-                            <input type="text" id="reg-name" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
+                            <label class="block text-sm font-bold text-white mb-2">Nome do Fundo * (Para a caderneta tradicional, use o nome "POUPANÇA")</label>
+                            <input type="text" id="reg-name" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white">
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-bold text-gray-200 mb-2">Risco *</label>
-                                <select id="reg-risk" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
+                                <label class="block text-sm font-bold text-white mb-2">Risco *</label>
+                                <select id="reg-risk" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white">
                                     <option value="Baixo">🟢 Baixo</option>
                                     <option value="Médio" selected>🟡 Médio</option>
                                     <option value="Alto">🔴 Alto</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-bold text-gray-200 mb-2">Valor Inicial (R$) *</label>
-                                <input type="number" step="0.01" id="reg-initial-value" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold">
+                                <label class="block text-sm font-bold text-white mb-2">Valor Inicial (R$) *</label>
+                                <input type="number" step="0.01" id="reg-initial-value" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-mono font-bold">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-200 mb-2">Observações</label>
-                            <textarea id="reg-notes" rows="3" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white"></textarea>
+                            <label class="block text-sm font-bold text-white mb-2">Observações</label>
+                            <textarea id="reg-notes" rows="3" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white"></textarea>
                         </div>
                         <div class="flex justify-end space-x-4">
                             <button type="submit" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-sm">Cadastrar</button>
@@ -320,12 +320,12 @@
 
             <!-- ABA 4: ENCERRADOS -->
             <section id="tab-content-closed" class="tab-content hidden space-y-6">
-                <div class="bg-gray-900 p-6 rounded-2xl border-2 border-gray-800 shadow-xl">
+                <div class="bg-gray-900 p-6 rounded-2xl border-2 border-gray-700 shadow-xl">
                     <h2 class="text-xl font-black text-white">Fundos Encerrados</h2>
                 </div>
-                <div class="bg-gray-900 rounded-2xl border-2 border-gray-800 shadow-xl overflow-hidden">
-                    <table class="w-full text-left text-sm text-gray-100">
-                        <thead class="bg-gray-950 text-gray-200 uppercase text-xs font-black border-b-2 border-gray-800">
+                <div class="bg-gray-900 rounded-2xl border-2 border-gray-700 shadow-xl overflow-hidden">
+                    <table class="w-full text-left text-sm text-white">
+                        <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b-2 border-gray-700">
                             <tr>
                                 <th class="py-4 px-6">Nome</th>
                                 <th class="py-4 px-6">Risco</th>
@@ -346,28 +346,28 @@
 
     <!-- MODAL EDITAR FUNDO -->
     <div id="edit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-800 shadow-2xl space-y-6">
+        <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-700 shadow-2xl space-y-6">
             <h3 class="text-lg font-black text-white">Editar Fundo</h3>
             <form id="edit-form" onsubmit="confirmEditFund(event)" class="space-y-4">
                 <input type="hidden" id="edit-fund-id">
                 <div>
-                    <label class="block text-sm font-bold text-gray-200 mb-1">Nome do Fundo</label>
-                    <input type="text" id="edit-name" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-2.5 text-white">
+                    <label class="block text-sm font-bold text-white mb-1">Nome do Fundo</label>
+                    <input type="text" id="edit-name" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-2.5 text-white">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-200 mb-1">Risco</label>
-                    <select id="edit-risk" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-2.5 text-white">
+                    <label class="block text-sm font-bold text-white mb-1">Risco</label>
+                    <select id="edit-risk" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-2.5 text-white">
                         <option value="Baixo">🟢 Baixo</option>
                         <option value="Médio">🟡 Médio</option>
                         <option value="Alto">🔴 Alto</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-200 mb-1">Observações</label>
-                    <textarea id="edit-notes" rows="2" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-2.5 text-white"></textarea>
+                    <label class="block text-sm font-bold text-white mb-1">Observações</label>
+                    <textarea id="edit-notes" rows="2" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-2.5 text-white"></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm">Cancelar</button>
+                    <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-gray-800 text-white font-bold rounded-xl text-sm border border-gray-600">Cancelar</button>
                     <button type="submit" class="px-6 py-2.5 bg-emerald-600 text-white font-extrabold rounded-xl text-sm">Salvar Alterações</button>
                 </div>
             </form>
@@ -376,18 +376,18 @@
 
     <!-- MODAL APORTE / RESGATE -->
     <div id="movement-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-800 shadow-2xl space-y-6">
+        <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-700 shadow-2xl space-y-6">
             <h3 class="text-lg font-black text-white">Aporte ou Resgate Parcial</h3>
-            <p class="text-sm text-gray-300">Ativo: <strong id="modal-mov-fund-name" class="text-white">---</strong></p>
+            <p class="text-sm text-white">Ativo: <strong id="modal-mov-fund-name" class="text-white">---</strong></p>
             <form id="movement-form" onsubmit="confirmMovement(event)" class="space-y-4">
                 <input type="hidden" id="modal-mov-fund-id">
-                <select id="modal-mov-type" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-bold">
+                <select id="modal-mov-type" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold">
                     <option value="aporte">➕ Aporte (Aumenta o Saldo Base)</option>
                     <option value="resgate">➖ Resgate Parcial (Diminui o Saldo Base)</option>
                 </select>
-                <input type="number" step="0.01" id="modal-mov-value" required placeholder="0,00" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold">
+                <input type="number" step="0.01" id="modal-mov-value" required placeholder="0,00" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-mono font-bold">
                 <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeMovementModal()" class="px-5 py-3 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm">Cancelar</button>
+                    <button type="button" onclick="closeMovementModal()" class="px-5 py-3 bg-gray-800 text-white font-bold rounded-xl text-sm border border-gray-600">Cancelar</button>
                     <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-extrabold rounded-xl text-sm">Confirmar</button>
                 </div>
             </form>
@@ -396,16 +396,16 @@
 
     <!-- MODAL LIQUIDAR -->
     <div id="liquidate-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-800 shadow-2xl space-y-6">
+        <div class="bg-gray-900 rounded-2xl max-w-lg w-full p-6 sm:p-8 border-2 border-gray-700 shadow-2xl space-y-6">
             <h3 class="text-lg font-black text-white">Liquidar Fundo</h3>
-            <p class="text-sm text-gray-300">Ativo: <strong id="modal-fund-name" class="text-white">---</strong></p>
+            <p class="text-sm text-white">Ativo: <strong id="modal-fund-name" class="text-white">---</strong></p>
             <form id="liquidate-form" onsubmit="confirmLiquidation(event)" class="space-y-4">
                 <input type="hidden" id="modal-fund-id">
-                <input type="number" step="0.01" id="modal-final-value" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white font-mono font-bold">
-                <input type="date" id="modal-close-date" required class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
-                <input type="text" id="modal-reason" placeholder="Motivo" class="w-full bg-gray-950 border-2 border-gray-700 rounded-xl px-4 py-3 text-white">
+                <input type="number" step="0.01" id="modal-final-value" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-mono font-bold">
+                <input type="date" id="modal-close-date" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white">
+                <input type="text" id="modal-reason" placeholder="Motivo" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white">
                 <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeLiquidateModal()" class="px-5 py-3 bg-gray-800 text-gray-200 font-bold rounded-xl text-sm">Cancelar</button>
+                    <button type="button" onclick="closeLiquidateModal()" class="px-5 py-3 bg-gray-800 text-white font-bold rounded-xl text-sm border border-gray-600">Cancelar</button>
                     <button type="submit" class="px-6 py-3 bg-purple-600 text-white font-extrabold rounded-xl text-sm">Confirmar</button>
                 </div>
             </form>
@@ -557,13 +557,13 @@
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-emerald-500', 'text-emerald-400', 'bg-gray-900');
-                btn.classList.add('border-transparent', 'text-gray-300');
+                btn.classList.remove('border-emerald-500', 'text-white', 'bg-gray-900');
+                btn.classList.add('border-transparent', 'text-white');
             });
             document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
 
-            document.getElementById(`tab-btn-${tabId}`).classList.add('border-emerald-500', 'text-emerald-400', 'bg-gray-900');
-            document.getElementById(`tab-btn-${tabId}`).classList.remove('border-transparent', 'text-gray-300');
+            document.getElementById(`tab-btn-${tabId}`).classList.add('border-emerald-500', 'text-white', 'bg-gray-900');
+            document.getElementById(`tab-btn-${tabId}`).classList.remove('border-transparent', 'text-white');
             document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
         }
 
@@ -598,7 +598,7 @@
             document.getElementById('active-count-badge').innerText = activeItems.length;
 
             if (activeItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-gray-400 font-medium">Nenhum fundo ativo.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-white font-medium">Nenhum fundo ativo.</td></tr>`;
                 return;
             }
 
@@ -609,24 +609,24 @@
                 const isPositive = yieldVal >= 0;
 
                 return `
-                    <tr class="hover:bg-gray-800/80 transition-colors">
-                        <td class="py-4 px-6 font-bold text-white">${item.name} ${item.notes ? `<p class="text-xs text-gray-300 font-normal mt-0.5">${item.notes}</p>` : ''}</td>
+                    <tr class="hover:bg-gray-800 transition-colors">
+                        <td class="py-4 px-6 font-bold text-white">${item.name} ${item.notes ? `<p class="text-xs text-white font-normal mt-0.5">${item.notes}</p>` : ''}</td>
                         <td class="py-4 px-6">${getRiskBadge(item.risk)}</td>
-                        <td class="py-4 px-6 text-right font-mono font-bold text-gray-100">${formatCurrency(base)}</td>
+                        <td class="py-4 px-6 text-right font-mono font-bold text-white">${formatCurrency(base)}</td>
                         <td class="py-4 px-6 text-center">
                             <div class="flex items-center justify-center space-x-2">
-                                <input type="number" step="0.01" value="${item.currentBalance}" id="input-balance-${item.id}" class="w-32 bg-gray-950 border-2 border-gray-700 rounded-xl px-2 py-1.5 text-right text-white font-mono font-bold focus:border-emerald-400">
+                                <input type="number" step="0.01" value="${item.currentBalance}" id="input-balance-${item.id}" class="w-32 bg-black border-2 border-gray-600 rounded-xl px-2 py-1.5 text-right text-white font-mono font-bold focus:border-emerald-400">
                                 <button onclick="saveSingleBalance('${item.id}')" title="Salvar Saldo" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow"><i class="fa-solid fa-floppy-disk"></i></button>
                             </div>
                         </td>
                         <td class="py-4 px-6 text-right font-mono font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'}">
-                            ${isPositive ? '+' : ''}${formatCurrency(yieldVal)}<span class="block text-xs font-semibold text-gray-300">(${isPositive ? '+' : ''}${yieldPct.toFixed(2)}%)</span>
+                            ${isPositive ? '+' : ''}${formatCurrency(yieldVal)}<span class="block text-xs font-semibold text-white">(${isPositive ? '+' : ''}${yieldPct.toFixed(2)}%)</span>
                         </td>
                         <td class="py-4 px-6 text-center space-x-1.5">
-                            <button onclick="openEditModal('${item.id}')" title="Editar Fundo" class="p-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl border border-gray-600"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="openMovementModal('${item.id}')" title="Aporte / Resgate" class="p-2.5 bg-blue-950 hover:bg-blue-900 text-blue-300 rounded-xl border border-blue-700/80"><i class="fa-solid fa-right-left"></i></button>
-                            <button onclick="openLiquidateModal('${item.id}')" title="Liquidar Fundo" class="p-2.5 bg-purple-950 hover:bg-purple-900 text-purple-200 rounded-xl border border-purple-700/80"><i class="fa-solid fa-box-archive"></i></button>
-                            <button onclick="deleteInvestment('${item.id}')" title="Excluir" class="p-2.5 bg-red-950 hover:bg-red-900 text-red-300 rounded-xl border border-red-700/80"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="openEditModal('${item.id}')" title="Editar Fundo" class="p-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl border border-gray-600"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="openMovementModal('${item.id}')" title="Aporte / Resgate" class="p-2.5 bg-blue-950 hover:bg-blue-900 text-blue-200 rounded-xl border border-blue-600"><i class="fa-solid fa-right-left"></i></button>
+                            <button onclick="openLiquidateModal('${item.id}')" title="Liquidar Fundo" class="p-2.5 bg-purple-950 hover:bg-purple-900 text-purple-200 rounded-xl border border-purple-600"><i class="fa-solid fa-box-archive"></i></button>
+                            <button onclick="deleteInvestment('${item.id}')" title="Excluir" class="p-2.5 bg-red-950 hover:bg-red-900 text-red-200 rounded-xl border border-red-600"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -639,7 +639,7 @@
             document.getElementById('closed-count-badge').innerText = closedItems.length;
 
             if (closedItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-gray-400 font-medium">Nenhum fundo encerrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-12 text-center text-white font-medium">Nenhum fundo encerrado.</td></tr>`;
                 return;
             }
 
@@ -649,15 +649,15 @@
                 const isPositive = profit >= 0;
 
                 return `
-                    <tr class="hover:bg-gray-800/80 transition-colors">
+                    <tr class="hover:bg-gray-800 transition-colors">
                         <td class="py-4 px-6 font-bold text-white">${item.name}</td>
                         <td class="py-4 px-6">${getRiskBadge(item.risk)}</td>
-                        <td class="py-4 px-6 text-gray-300">${formatDate(item.closeDate)}</td>
-                        <td class="py-4 px-6 text-right font-mono font-bold">${formatCurrency(base)}</td>
+                        <td class="py-4 px-6 text-white">${formatDate(item.closeDate)}</td>
+                        <td class="py-4 px-6 text-right font-mono font-bold text-white">${formatCurrency(base)}</td>
                         <td class="py-4 px-6 text-right font-mono font-bold text-purple-300">${formatCurrency(item.finalValue)}</td>
                         <td class="py-4 px-6 text-right font-mono font-bold ${isPositive ? 'text-emerald-400' : 'text-red-400'}">${isPositive ? '+' : ''}${formatCurrency(profit)}</td>
-                        <td class="py-4 px-6 text-gray-300 text-xs">${item.closeReason || '---'}</td>
-                        <td class="py-4 px-6 text-center"><button onclick="reactivateFund('${item.id}')" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold text-gray-200 rounded-xl border border-gray-600">Reativar</button></td>
+                        <td class="py-4 px-6 text-white text-xs">${item.closeReason || '---'}</td>
+                        <td class="py-4 px-6 text-center"><button onclick="reactivateFund('${item.id}')" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-bold text-white rounded-xl border border-gray-600">Reativar</button></td>
                     </tr>
                 `;
             }).join('');
@@ -831,11 +831,11 @@
                 const diffColor = r.diff >= 0 ? 'text-emerald-400' : 'text-red-400';
                 const diffSign = r.diff >= 0 ? '+' : '';
                 return `
-                    <tr class="hover:bg-gray-800/80">
+                    <tr class="hover:bg-gray-800">
                         <td class="py-3 px-6 font-bold text-white">${r.label}</td>
-                        <td class="py-3 px-6 text-center font-bold text-emerald-400">${r.pct}</td>
-                        <td class="py-3 px-6 text-right">${formatCurrency(r.rec)}</td>
-                        <td class="py-3 px-6 text-right font-bold">${formatCurrency(r.cur)}</td>
+                        <td class="py-3 px-6 text-center font-bold text-white">${r.pct}</td>
+                        <td class="py-3 px-6 text-right text-white">${formatCurrency(r.rec)}</td>
+                        <td class="py-3 px-6 text-right font-bold text-white">${formatCurrency(r.cur)}</td>
                         <td class="py-3 px-6 text-right font-bold ${diffColor}">${diffSign}${formatCurrency(r.diff)}</td>
                     </tr>
                 `;
@@ -845,13 +845,11 @@
         function renderComparisonTable() {
             const active = investments.filter(i => i.status === 'active');
             
-            // Isola o fundo POUPANÇA (case insensitive)
             const poupancaFund = active.find(i => i.name.trim().toUpperCase() === 'POUPANÇA');
             const poupancaBalance = poupancaFund ? poupancaFund.currentBalance : 0;
             const poupancaBase = poupancaFund ? (poupancaFund.baseValue || poupancaFund.initialValue) : 0;
             const poupancaProfit = poupancaBalance - poupancaBase;
 
-            // Portfólio ativo = todos os demais investimentos exceto a POUPANÇA
             const otherActive = active.filter(i => i.name.trim().toUpperCase() !== 'POUPANÇA');
             const otherBalance = otherActive.reduce((acc, curr) => acc + curr.currentBalance, 0);
             const otherBase = otherActive.reduce((acc, curr) => acc + (curr.baseValue || curr.initialValue), 0);
@@ -859,13 +857,13 @@
 
             const tbody = document.getElementById('comparison-table-tbody');
             tbody.innerHTML = `
-                <tr class="hover:bg-gray-800/80">
-                    <td class="py-3 px-4 font-bold text-emerald-400">Portfólio Ativo (Demais Investimentos)</td>
+                <tr class="hover:bg-gray-800">
+                    <td class="py-3 px-4 font-bold text-white">Portfólio Ativo (Demais Investimentos)</td>
                     <td class="py-3 px-4 text-right font-bold text-white">${formatCurrency(otherBalance)}</td>
                     <td class="py-3 px-4 text-right font-bold text-emerald-400">${formatCurrency(otherProfit)}</td>
                 </tr>
-                <tr class="hover:bg-gray-800/80">
-                    <td class="py-3 px-4 font-bold text-amber-300">POUPANÇA</td>
+                <tr class="hover:bg-gray-800">
+                    <td class="py-3 px-4 font-bold text-white">POUPANÇA</td>
                     <td class="py-3 px-4 text-right font-bold text-white">${formatCurrency(poupancaBalance)}</td>
                     <td class="py-3 px-4 text-right font-bold text-amber-300">${formatCurrency(poupancaProfit)}</td>
                 </tr>
@@ -878,7 +876,6 @@
         }
 
         function initCharts() {
-            // Gráfico Alocação por Risco (Cores de alto contraste e legibilidade)
             riskChartInstance = new Chart(document.getElementById('riskChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
@@ -887,7 +884,7 @@
                         data: [0, 0, 0],
                         backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
                         borderWidth: 2,
-                        borderColor: '#111827'
+                        borderColor: '#000000'
                     }]
                 },
                 options: {
@@ -897,7 +894,7 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                color: '#f3f4f6',
+                                color: '#ffffff',
                                 font: { weight: 'bold', size: 13 },
                                 padding: 16,
                                 generateLabels: (chart) => {
@@ -909,7 +906,7 @@
                                         return {
                                             text: `${label}: ${formatCurrency(val)} (${pct}%)`,
                                             fillStyle: data.datasets[0].backgroundColor[i],
-                                            strokeStyle: '#111827',
+                                            strokeStyle: '#000000',
                                             lineWidth: 1,
                                             hidden: false,
                                             index: i
@@ -922,7 +919,6 @@
                 }
             });
 
-            // Gráfico Participação Patrimonial com valores e percentuais na legenda
             comparisonPieInstance = new Chart(document.getElementById('comparisonPieChart').getContext('2d'), {
                 type: 'pie',
                 data: {
@@ -931,7 +927,7 @@
                         data: [0, 0],
                         backgroundColor: ['#10b981', '#f59e0b'],
                         borderWidth: 2,
-                        borderColor: '#111827'
+                        borderColor: '#000000'
                     }]
                 },
                 options: {
@@ -941,7 +937,7 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                color: '#f3f4f6',
+                                color: '#ffffff',
                                 font: { weight: 'bold', size: 13 },
                                 padding: 16,
                                 generateLabels: (chart) => {
@@ -953,7 +949,7 @@
                                         return {
                                             text: `${label}: ${formatCurrency(val)} (${pct}%)`,
                                             fillStyle: data.datasets[0].backgroundColor[i],
-                                            strokeStyle: '#111827',
+                                            strokeStyle: '#000000',
                                             lineWidth: 1,
                                             hidden: false,
                                             index: i
@@ -966,7 +962,6 @@
                 }
             });
 
-            // Gráfico YoY (Contraste ajustado para os eixos e barras)
             yoyChartInstance = new Chart(document.getElementById('yoyChart').getContext('2d'), {
                 type: 'bar',
                 data: {
@@ -980,13 +975,13 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { ticks: { color: '#f3f4f6', font: { weight: 'bold' } }, grid: { display: false } },
-                        y: { ticks: { color: '#f3f4f6', font: { weight: 'bold' } }, grid: { color: '#374151' } }
+                        x: { ticks: { color: '#ffffff', font: { weight: 'bold' } }, grid: { display: false } },
+                        y: { ticks: { color: '#ffffff', font: { weight: 'bold' } }, grid: { color: '#374151' } }
                     },
                     plugins: {
                         legend: {
                             position: 'top',
-                            labels: { color: '#f3f4f6', font: { weight: 'bold' } }
+                            labels: { color: '#ffffff', font: { weight: 'bold' } }
                         }
                     }
                 }
