@@ -256,7 +256,7 @@
                     </div>
                 </div>
 
-                <!-- PAINEL DE TETO INSS E RENDA LÍQUIDA ANUAL -->
+                <!-- PAINEL DE TETO INSS E RENDA MENSAL VARIÁVEL -->
                 <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-6">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 border-gray-800 pb-4">
                         <div>
@@ -264,7 +264,7 @@
                                 <i class="fa-solid fa-calculator text-emerald-400 text-xl"></i>
                                 <span>Parâmetros Financeiros do Ano & Comparativo INSS</span>
                             </h3>
-                            <p class="text-xs text-gray-400 mt-1">Informe o Teto do INSS e sua Renda Mensal do ano selecionado.</p>
+                            <p class="text-xs text-gray-400 mt-1">Informe o Teto do INSS do ano e registre os rendimentos (salários) mês a mês.</p>
                         </div>
                         <div class="flex items-center space-x-3">
                             <label for="param-year-select" class="text-xs font-bold text-gray-300">Ano do Parâmetro:</label>
@@ -273,39 +273,74 @@
                         </div>
                     </div>
 
-                    <form onsubmit="saveAnnualParams(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-6 items-end bg-black/40 p-4 rounded-xl border border-gray-800">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">Teto do INSS Mensal (R$)</label>
-                            <input type="number" step="0.01" id="input-inss-cap" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-2.5 text-white font-mono font-bold">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 mb-1">Rendimento Líquido Mensal (Salário R$)</label>
-                            <input type="number" step="0.01" id="input-net-income" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-2.5 text-white font-mono font-bold">
-                        </div>
-                        <div>
-                            <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-xs transition-all shadow-md">
-                                <i class="fa-solid fa-floppy-disk mr-1"></i> Salvar Parâmetros
-                            </button>
-                        </div>
-                    </form>
-
+                    <!-- 1. TETO DO INSS E REGISTRO MENSAL DE SALÁRIO -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="bg-black/50 p-5 rounded-xl border border-gray-800 space-y-1">
-                            <p class="text-xs font-bold text-gray-400 uppercase">Rendimento Líquido Médio Total</p>
-                            <h4 id="inss-total-net-avg" class="text-xl font-black text-white">R$ 0,00 / mês</h4>
-                            <p class="text-[11px] text-gray-400">(Salário Líquido + Lucro Médio de Investimentos)</p>
+                        <div class="bg-black/40 p-5 rounded-xl border border-gray-800 space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">Teto do INSS Mensal (R$) *</label>
+                                <input type="number" step="0.01" id="input-inss-cap" onchange="saveINSSCap()" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-2.5 text-white font-mono font-bold">
+                            </div>
+                            <hr class="border-gray-800">
+                            <div>
+                                <h4 class="text-xs font-bold text-emerald-400 uppercase mb-2">Registrar Rendimento Mensal (Salário)</h4>
+                                <form onsubmit="handleSalaryRecordSave(event)" class="space-y-3">
+                                    <div>
+                                        <label class="block text-[11px] text-gray-400 mb-1">Mês/Ano</label>
+                                        <input type="month" id="salary-month" required class="w-full bg-gray-950 border border-gray-600 rounded-xl px-3 py-2 text-xs text-white font-bold">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] text-gray-400 mb-1">Valor Líquido Recebido (R$)</label>
+                                        <input type="number" step="0.01" id="salary-value" required placeholder="0,00" class="w-full bg-gray-950 border border-gray-600 rounded-xl px-3 py-2 text-xs text-white font-mono font-bold">
+                                    </div>
+                                    <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-xs transition-all shadow">
+                                        <i class="fa-solid fa-plus mr-1"></i> Salvar Salário do Mês
+                                    </button>
+                                </form>
+                            </div>
                         </div>
 
-                        <div class="bg-black/50 p-5 rounded-xl border border-gray-800 space-y-1">
-                            <p class="text-xs font-bold text-gray-400 uppercase">Margem em Relação ao Teto INSS</p>
-                            <h4 id="inss-margin-val" class="text-xl font-black text-white">R$ 0,00</h4>
-                            <p id="inss-margin-desc" class="text-[11px] text-gray-400">Diferença absoluta para atingir o teto</p>
-                        </div>
+                        <!-- 2. RESULTADOS DO INSS -->
+                        <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 content-start">
+                            <div class="bg-black/50 p-5 rounded-xl border border-gray-800 space-y-1">
+                                <p class="text-xs font-bold text-gray-400 uppercase">Média Salarial Líquida</p>
+                                <h4 id="inss-avg-salary" class="text-xl font-black text-white">R$ 0,00 / mês</h4>
+                                <p class="text-[11px] text-gray-400">(Média dos meses informados no ano)</p>
+                            </div>
 
-                        <div id="inss-status-card" class="bg-emerald-950/60 p-5 rounded-xl border-2 border-emerald-500 flex flex-col justify-center space-y-1">
-                            <p class="text-xs font-bold text-emerald-300 uppercase">Status do Teto INSS</p>
-                            <h4 id="inss-status-title" class="text-lg font-black text-emerald-200">Aguardando dados...</h4>
-                            <p id="inss-status-detail" class="text-xs font-semibold text-emerald-100">---</p>
+                            <div class="bg-black/50 p-5 rounded-xl border border-gray-800 space-y-1">
+                                <p class="text-xs font-bold text-gray-400 uppercase">Rendimento Líquido Médio Total</p>
+                                <h4 id="inss-total-net-avg" class="text-xl font-black text-white">R$ 0,00 / mês</h4>
+                                <p class="text-[11px] text-gray-400">(Salário Médio + Lucro Médio de Investimentos)</p>
+                            </div>
+
+                            <div class="bg-black/50 p-5 rounded-xl border border-gray-800 space-y-1">
+                                <p class="text-xs font-bold text-gray-400 uppercase">Margem em Relação ao Teto</p>
+                                <h4 id="inss-margin-val" class="text-xl font-black text-white">R$ 0,00</h4>
+                                <p id="inss-margin-desc" class="text-[11px] text-gray-400">Diferença absoluta para o teto</p>
+                            </div>
+
+                            <div id="inss-status-card" class="sm:col-span-3 bg-emerald-950/60 p-5 rounded-xl border-2 border-emerald-500 flex flex-col justify-center space-y-1">
+                                <p class="text-xs font-bold text-emerald-300 uppercase">Status do Teto INSS</p>
+                                <h4 id="inss-status-title" class="text-lg font-black text-emerald-200">Aguardando dados...</h4>
+                                <p id="inss-status-detail" class="text-xs font-semibold text-emerald-100">---</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. TABELA DE HISTÓRICO DE SALÁRIOS DO ANO -->
+                    <div class="bg-black/50 rounded-xl p-4 border border-gray-800 space-y-3">
+                        <h4 class="text-xs font-bold text-gray-300 uppercase">Histórico de Salários Informados no Ano</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-white">
+                                <thead class="bg-gray-950 uppercase font-black text-[10px] text-gray-400 border-b border-gray-800">
+                                    <tr>
+                                        <th class="py-2.5 px-4">Mês/Ano</th>
+                                        <th class="py-2.5 px-4 text-right">Valor Líquido Recebido</th>
+                                        <th class="py-2.5 px-4 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salary-records-tbody" class="divide-y divide-gray-800 font-mono"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -647,6 +682,7 @@
         let investments = [];
         let historicalSnapshots = {};
         let annualParameters = {};
+        let salaryRecords = {};
         let pensionRecords = {};
 
         let riskChartInstance = null;
@@ -688,7 +724,7 @@
 
         function lockSystem() {
             sessionStorage.removeItem("financeiro_auth");
-            document.getElementById("auth-overlay").classList.remove("hidden");
+            document.getElementById("auth-overlay").classList.add("hidden");
             document.getElementById("app-content").classList.add("hidden");
             document.getElementById("auth-password").value = "";
         }
@@ -708,6 +744,12 @@
                 annualParameters = {};
                 paramsSnap.docs.forEach(doc => {
                     annualParameters[doc.id] = doc.data();
+                });
+
+                const salarySnap = await db.collection("salary_records").get();
+                salaryRecords = {};
+                salarySnap.docs.forEach(doc => {
+                    salaryRecords[doc.id] = doc.data();
                 });
 
                 const pensionSnap = await db.collection("pension_records").get();
@@ -790,6 +832,7 @@
             populateParamYearSelector();
             calculateDailyAndYearProjection();
             calculateINSSComparison();
+            renderSalaryTable();
             renderPensionTables();
         }
 
@@ -1060,6 +1103,175 @@
             document.getElementById('metric-realized-profit').innerText = formatCurrency(totalRealizedProfit);
         }
 
+        /* --- PARÂMETROS ANUAIS & SALÁRIOS MENSAIS (INSS) --- */
+        function populateParamYearSelector() {
+            const select = document.getElementById('param-year-select');
+            const currentYear = new Date().getFullYear();
+            const yearsSet = new Set([currentYear, currentYear - 1, currentYear + 1]);
+            Object.keys(annualParameters).forEach(y => yearsSet.add(parseInt(y)));
+            Object.keys(salaryRecords).forEach(k => yearsSet.add(parseInt(k.split('-')[0])));
+
+            const sortedYears = Array.from(yearsSet).sort((a,b) => b - a);
+            const currentSel = select.value;
+
+            select.innerHTML = sortedYears.map(y => `<option value="${y}" ${(currentSel ? parseInt(currentSel) === y : y === currentYear) ? 'selected' : ''}>Ano ${y}</option>`).join('');
+            loadAnnualParams();
+        }
+
+        function loadAnnualParams() {
+            const selYear = document.getElementById('param-year-select').value || new Date().getFullYear();
+            const data = annualParameters[selYear] || { inssCap: 0 };
+            document.getElementById('input-inss-cap').value = data.inssCap || '';
+            calculateINSSComparison();
+            renderSalaryTable();
+        }
+
+        async function saveINSSCap() {
+            const selYear = document.getElementById('param-year-select').value;
+            const inssCap = parseFloat(document.getElementById('input-inss-cap').value) || 0;
+
+            if (!annualParameters[selYear]) annualParameters[selYear] = {};
+            annualParameters[selYear].inssCap = inssCap;
+            annualParameters[selYear].updatedAt = new Date().toISOString();
+
+            try {
+                await db.collection("annual_parameters").doc(String(selYear)).set(annualParameters[selYear]);
+                showToast(`Teto do INSS de ${selYear} salvo!`);
+            } catch (err) {
+                console.error("Erro ao salvar teto INSS:", err);
+            }
+            calculateINSSComparison();
+        }
+
+        async function handleSalaryRecordSave(e) {
+            e.preventDefault();
+            const monthKey = document.getElementById('salary-month').value;
+            const value = parseFloat(document.getElementById('salary-value').value) || 0;
+
+            if (!monthKey) return;
+
+            const record = {
+                monthKey,
+                value,
+                updatedAt: new Date().toISOString()
+            };
+
+            salaryRecords[monthKey] = record;
+
+            try {
+                await db.collection("salary_records").doc(monthKey).set(record);
+                showToast(`Salário de ${monthKey} salvo!`);
+                document.getElementById('salary-value').value = '';
+                renderAll();
+            } catch (err) {
+                console.error("Erro ao salvar salário:", err);
+                showToast("Erro ao salvar salário.", "error");
+            }
+        }
+
+        async function deleteSalaryRecord(monthKey) {
+            if (confirm(`Excluir salário de ${monthKey}?`)) {
+                try {
+                    await db.collection("salary_records").doc(monthKey).delete();
+                    delete salaryRecords[monthKey];
+                    showToast("Registro excluído.");
+                    renderAll();
+                } catch (err) {
+                    console.error("Erro ao excluir salário:", err);
+                }
+            }
+        }
+
+        function renderSalaryTable() {
+            const tbody = document.getElementById('salary-records-tbody');
+            const selYear = document.getElementById('param-year-select').value || String(new Date().getFullYear());
+
+            const yearKeys = Object.keys(salaryRecords)
+                .filter(k => k.startsWith(selYear))
+                .sort((a,b) => b.localeCompare(a));
+
+            if (yearKeys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-gray-400">Nenhum salário informado para o ano ${selYear}.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = yearKeys.map(k => {
+                const rec = salaryRecords[k];
+                const [y, m] = k.split('-');
+                return `
+                    <tr class="hover:bg-gray-800 transition-colors">
+                        <td class="py-2.5 px-4 font-bold text-white">${m}/${y}</td>
+                        <td class="py-2.5 px-4 text-right text-emerald-400 font-bold">${formatCurrency(rec.value)}</td>
+                        <td class="py-2.5 px-4 text-center">
+                            <button onclick="deleteSalaryRecord('${k}')" class="p-1 bg-red-950 hover:bg-red-900 text-red-300 rounded border border-red-700 text-[10px]"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function calculateINSSComparison() {
+            const selYear = document.getElementById('param-year-select').value || String(new Date().getFullYear());
+            const params = annualParameters[selYear] || { inssCap: 0 };
+
+            // Calcula a média salarial do ano selecionado com base nos meses cadastrados
+            const yearSalaries = Object.keys(salaryRecords)
+                .filter(k => k.startsWith(selYear))
+                .map(k => salaryRecords[k].value || 0);
+
+            const totalSalaryYear = yearSalaries.reduce((acc, val) => acc + val, 0);
+            const monthsCount = yearSalaries.length;
+            const avgSalaryMonthly = monthsCount > 0 ? totalSalaryYear / monthsCount : 0;
+
+            // Média de lucros dos investimentos ativos no ano atual
+            const active = investments.filter(i => i.status === 'active');
+            const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
+            const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
+            const unrealizedProfit = totalCurrent - totalBase;
+            const currentMonthNum = new Date().getFullYear() === parseInt(selYear) ? Math.max(1, new Date().getMonth() + 1) : 12;
+            const monthlyProfitAvg = unrealizedProfit / currentMonthNum;
+
+            const totalNetAvg = avgSalaryMonthly + monthlyProfitAvg;
+            const inssCap = params.inssCap || 0;
+
+            document.getElementById('inss-avg-salary').innerText = `${formatCurrency(avgSalaryMonthly)} / mês`;
+            document.getElementById('inss-total-net-avg').innerText = `${formatCurrency(totalNetAvg)} / mês`;
+
+            const margin = totalNetAvg - inssCap;
+            const absMargin = Math.abs(margin);
+
+            const statusCard = document.getElementById('inss-status-card');
+            const titleEl = document.getElementById('inss-status-title');
+            const detailEl = document.getElementById('inss-status-detail');
+            const marginValEl = document.getElementById('inss-margin-val');
+            const marginDescEl = document.getElementById('inss-margin-desc');
+
+            marginValEl.innerText = formatCurrency(absMargin);
+
+            if (inssCap === 0) {
+                statusCard.className = "sm:col-span-3 bg-gray-800 p-5 rounded-xl border-2 border-gray-600 flex flex-col justify-center space-y-1";
+                titleEl.innerText = "Parâmetros não definidos";
+                titleEl.className = "text-lg font-black text-gray-300";
+                detailEl.innerText = "Informe o Teto do INSS para este ano.";
+                marginDescEl.innerText = "Cadastre o valor acima para calcular.";
+                return;
+            }
+
+            if (margin >= 0) {
+                statusCard.className = "sm:col-span-3 bg-emerald-950/80 p-5 rounded-xl border-2 border-emerald-500 flex flex-col justify-center space-y-1";
+                titleEl.innerText = "🟢 ACIMA DO TETO DO INSS";
+                titleEl.className = "text-lg font-black text-emerald-300";
+                detailEl.innerText = `Seu rendimento líquido médio está ${formatCurrency(absMargin)} acima do teto do INSS!`;
+                marginDescEl.innerText = "Superávit mensal em relação ao teto do INSS.";
+            } else {
+                statusCard.className = "sm:col-span-3 bg-amber-950/80 p-5 rounded-xl border-2 border-amber-500 flex flex-col justify-center space-y-1";
+                titleEl.innerText = "🟡 ABAIXO DO TETO DO INSS";
+                titleEl.className = "text-lg font-black text-amber-300";
+                detailEl.innerText = `Faltam ${formatCurrency(absMargin)} por mês para alcançar o teto do INSS.`;
+                marginDescEl.innerText = "Déficit mensal em relação ao teto do INSS.";
+            }
+        }
+
         /* --- SUBSISTEMA PREVIDÊNCIA PRIVADA --- */
         async function handlePensionSave(e) {
             e.preventDefault();
@@ -1114,7 +1326,6 @@
                 return;
             }
 
-            // Tabela Mensal
             monthlyTbody.innerHTML = keys.map(k => {
                 const rec = pensionRecords[k];
                 const [y, m] = k.split('-');
@@ -1131,7 +1342,6 @@
                 `;
             }).join('');
 
-            // Agrupamento Anual para Consulta
             const yearlyMap = {};
             keys.forEach(k => {
                 const year = k.split('-')[0];
@@ -1143,7 +1353,6 @@
                 yearlyMap[year].recordsCount += 1;
             });
 
-            // Ordena anos decrescente para cálculo de saldo acumulado
             const yearsAsc = Object.keys(yearlyMap).sort((a,b) => a.localeCompare(b));
             let runningAccumulatedBalance = 0;
             const annualRows = [];
@@ -1266,104 +1475,6 @@
             document.getElementById('metric-days-passed').innerText = `${daysPassed} dias`;
             document.getElementById('metric-daily-profit').innerText = `${formatCurrency(dailyProfit)} / dia`;
             document.getElementById('metric-projected-year-profit').innerText = formatCurrency(projectedProfit);
-        }
-
-        /* --- LÓGICA DE PARÂMETROS ANUAIS E COMPARATIVO INSS --- */
-        function populateParamYearSelector() {
-            const select = document.getElementById('param-year-select');
-            const currentYear = new Date().getFullYear();
-            const yearsSet = new Set([currentYear, currentYear - 1, currentYear + 1]);
-            Object.keys(annualParameters).forEach(y => yearsSet.add(parseInt(y)));
-
-            const sortedYears = Array.from(yearsSet).sort((a,b) => b - a);
-            const currentSel = select.value;
-
-            select.innerHTML = sortedYears.map(y => `<option value="${y}" ${(currentSel ? parseInt(currentSel) === y : y === currentYear) ? 'selected' : ''}>Ano ${y}</option>`).join('');
-            loadAnnualParams();
-        }
-
-        function loadAnnualParams() {
-            const selYear = document.getElementById('param-year-select').value || new Date().getFullYear();
-            const data = annualParameters[selYear] || { inssCap: 0, netIncome: 0 };
-            
-            document.getElementById('input-inss-cap').value = data.inssCap || '';
-            document.getElementById('input-net-income').value = data.netIncome || '';
-
-            calculateINSSComparison();
-        }
-
-        async function saveAnnualParams(e) {
-            e.preventDefault();
-            const selYear = document.getElementById('param-year-select').value;
-            const inssCap = parseFloat(document.getElementById('input-inss-cap').value) || 0;
-            const netIncome = parseFloat(document.getElementById('input-net-income').value) || 0;
-
-            const paramObj = { inssCap, netIncome, updatedAt: new Date().toISOString() };
-            annualParameters[selYear] = paramObj;
-
-            try {
-                await db.collection("annual_parameters").doc(String(selYear)).set(paramObj);
-                showToast(`Parâmetros de ${selYear} salvos!`);
-            } catch (err) {
-                console.error("Erro ao salvar parâmetros:", err);
-                showToast("Erro ao salvar parâmetros.", "error");
-            }
-
-            calculateINSSComparison();
-        }
-
-        function calculateINSSComparison() {
-            const selYear = document.getElementById('param-year-select').value || new Date().getFullYear();
-            const params = annualParameters[selYear] || { inssCap: 0, netIncome: 0 };
-
-            const active = investments.filter(i => i.status === 'active');
-            const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
-            const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
-            const unrealizedProfit = totalCurrent - totalBase;
-
-            const now = new Date();
-            const currentMonth = now.getMonth() + 1;
-            const monthlyProfitAvg = unrealizedProfit / Math.max(1, currentMonth);
-
-            const salaryNet = params.netIncome || 0;
-            const totalNetAvg = salaryNet + monthlyProfitAvg;
-            const inssCap = params.inssCap || 0;
-
-            document.getElementById('inss-total-net-avg').innerText = `${formatCurrency(totalNetAvg)} / mês`;
-
-            const margin = totalNetAvg - inssCap;
-            const absMargin = Math.abs(margin);
-
-            const statusCard = document.getElementById('inss-status-card');
-            const titleEl = document.getElementById('inss-status-title');
-            const detailEl = document.getElementById('inss-status-detail');
-            const marginValEl = document.getElementById('inss-margin-val');
-            const marginDescEl = document.getElementById('inss-margin-desc');
-
-            marginValEl.innerText = formatCurrency(absMargin);
-
-            if (inssCap === 0) {
-                statusCard.className = "bg-gray-800 p-5 rounded-xl border-2 border-gray-600 flex flex-col justify-center space-y-1";
-                titleEl.innerText = "Parâmetros não definidos";
-                titleEl.className = "text-lg font-black text-gray-300";
-                detailEl.innerText = "Informe o Teto do INSS para este ano.";
-                marginDescEl.innerText = "Cadastre os valores acima para calcular.";
-                return;
-            }
-
-            if (margin >= 0) {
-                statusCard.className = "bg-emerald-950/80 p-5 rounded-xl border-2 border-emerald-500 flex flex-col justify-center space-y-1";
-                titleEl.innerText = "🟢 ACIMA DO TETO DO INSS";
-                titleEl.className = "text-lg font-black text-emerald-300";
-                detailEl.innerText = `Seu rendimento líquido médio está ${formatCurrency(absMargin)} acima do teto do INSS!`;
-                marginDescEl.innerText = "Superávit mensal em relação ao teto do INSS.";
-            } else {
-                statusCard.className = "bg-amber-950/80 p-5 rounded-xl border-2 border-amber-500 flex flex-col justify-center space-y-1";
-                titleEl.innerText = "🟡 ABAIXO DO TETO DO INSS";
-                titleEl.className = "text-lg font-black text-amber-300";
-                detailEl.innerText = `Faltam ${formatCurrency(absMargin)} por mês para alcançar o teto do INSS.`;
-                marginDescEl.innerText = "Déficit mensal em relação ao teto do INSS.";
-            }
         }
 
         function renderRecommendedAllocation() {
