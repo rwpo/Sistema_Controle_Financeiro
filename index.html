@@ -698,6 +698,12 @@
             if (sessionStorage.getItem("financeiro_auth") === "true") {
                 unlockSystem();
             }
+
+            // Sugere o mês atual no campo de previdência
+            const now = new Date();
+            const defaultYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const pensionMonthEl = document.getElementById('pension-month');
+            if (pensionMonthEl) pensionMonthEl.value = defaultYM;
         });
 
         function handleAuth(e) {
@@ -724,7 +730,7 @@
 
         function lockSystem() {
             sessionStorage.removeItem("financeiro_auth");
-            document.getElementById("auth-overlay").classList.add("hidden");
+            document.getElementById("auth-overlay").classList.remove("hidden");
             document.getElementById("app-content").classList.add("hidden");
             document.getElementById("auth-password").value = "";
         }
@@ -890,9 +896,19 @@
                 const yieldPct = base > 0 ? (yieldVal / base) * 100 : 0;
                 const isPositive = yieldVal >= 0;
 
+                let lastUpdateText = 'Nunca atualizado';
+                if (item.lastBalanceUpdate) {
+                    const dt = new Date(item.lastBalanceUpdate);
+                    lastUpdateText = `Última alt: ${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'})}`;
+                }
+
                 return `
                     <tr class="hover:bg-gray-800 transition-colors">
-                        <td class="py-4 px-6 font-bold text-white">${item.name} ${item.notes ? `<p class="text-xs text-white font-normal mt-0.5">${item.notes}</p>` : ''}</td>
+                        <td class="py-4 px-6 font-bold text-white">
+                            ${item.name} 
+                            ${item.notes ? `<p class="text-xs text-white font-normal mt-0.5">${item.notes}</p>` : ''}
+                            <p class="text-[10px] text-emerald-400 font-semibold mt-1"><i class="fa-solid fa-clock mr-1"></i>${lastUpdateText}</p>
+                        </td>
                         <td class="py-4 px-6">${getRiskBadge(item.risk)}</td>
                         <td class="py-4 px-6 text-right font-mono font-bold text-white">${formatCurrency(base)}</td>
                         <td class="py-4 px-6 text-center">
@@ -1019,18 +1035,28 @@
 
         async function saveSingleBalance(id) {
             const val = parseFloat(document.getElementById(`input-balance-${id}`).value) || 0;
-            const fund = investments.find(i => i.id === id);
-            if (fund) {
-                fund.currentBalance = val;
+            const fundIndex = investments.findIndex(i => i.id === id);
+            if (fundIndex !== -1) {
+                investments[fundIndex].currentBalance = val;
+                investments[fundIndex].lastBalanceUpdate = new Date().toISOString();
+                
+                // Manda o fundo atualizado para o final da lista (fila)
+                const updatedFund = investments.splice(fundIndex, 1)[0];
+                investments.push(updatedFund);
+
                 await saveData();
-                showToast("Saldo atualizado!");
+                showToast("Saldo atualizado e fundo movido para o final da fila!");
             }
         }
 
         async function saveAllCurrentBalances() {
+            const nowIso = new Date().toISOString();
             investments.filter(i => i.status === 'active').forEach(fund => {
                 const el = document.getElementById(`input-balance-${fund.id}`);
-                if (el) fund.currentBalance = parseFloat(el.value) || 0;
+                if (el) {
+                    fund.currentBalance = parseFloat(el.value) || 0;
+                    fund.lastBalanceUpdate = nowIso;
+                }
             });
             await saveData();
             showToast("Todos os saldos salvos!");
@@ -1214,7 +1240,6 @@
             const selYear = document.getElementById('param-year-select').value || String(new Date().getFullYear());
             const params = annualParameters[selYear] || { inssCap: 0 };
 
-            // Calcula a média salarial do ano selecionado com base nos meses cadastrados
             const yearSalaries = Object.keys(salaryRecords)
                 .filter(k => k.startsWith(selYear))
                 .map(k => salaryRecords[k].value || 0);
@@ -1223,7 +1248,6 @@
             const monthsCount = yearSalaries.length;
             const avgSalaryMonthly = monthsCount > 0 ? totalSalaryYear / monthsCount : 0;
 
-            // Média de lucros dos investimentos ativos no ano atual
             const active = investments.filter(i => i.status === 'active');
             const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
             const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
@@ -1301,6 +1325,19 @@
             }
         }
 
+        function editPensionRecord(monthKey) {
+            const rec = pensionRecords[monthKey];
+            if (!rec) return;
+
+            document.getElementById('pension-month').value = monthKey;
+            document.getElementById('pension-contribution').value = rec.contribution;
+            document.getElementById('pension-yield').value = rec.yieldVal;
+
+            // Rola suavemente até o formulário de cadastro para edição
+            document.getElementById('pension-month').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            showToast(`Editando previdência de ${monthKey}. Ajuste e clique em Registrar.`);
+        }
+
         async function deletePensionRecord(monthKey) {
             if (confirm(`Excluir registro de previdência de ${monthKey}?`)) {
                 try {
@@ -1335,8 +1372,9 @@
                         <td class="py-3 px-6 text-right text-gray-300">${formatCurrency(rec.contribution)}</td>
                         <td class="py-3 px-6 text-right ${rec.yieldVal >= 0 ? 'text-emerald-400' : 'text-red-400'}">${rec.yieldVal >= 0 ? '+' : ''}${formatCurrency(rec.yieldVal)}</td>
                         <td class="py-3 px-6 text-right font-bold text-blue-300">${formatCurrency(rec.monthlyBalance)}</td>
-                        <td class="py-3 px-6 text-center">
-                            <button onclick="deletePensionRecord('${k}')" class="p-1.5 bg-red-950 hover:bg-red-900 text-red-300 rounded border border-red-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <td class="py-3 px-6 text-center space-x-2">
+                            <button onclick="editPensionRecord('${k}')" title="Editar" class="p-1.5 bg-gray-800 hover:bg-gray-700 text-blue-300 rounded border border-gray-600 text-xs"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deletePensionRecord('${k}')" title="Excluir" class="p-1.5 bg-red-950 hover:bg-red-900 text-red-300 rounded border border-red-700 text-xs"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
