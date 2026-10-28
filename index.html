@@ -345,6 +345,70 @@
                     </div>
                 </div>
 
+                <!-- RELATÓRIO ESTATÍSTICO DE INVESTIMENTOS (LUCRO X PREJUÍZO) -->
+                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-6">
+                    <div class="border-b-2 border-gray-800 pb-4 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                        <div>
+                            <h3 class="text-lg font-black text-white flex items-center space-x-3">
+                                <i class="fa-solid fa-chart-line text-emerald-400 text-xl"></i>
+                                <span>Relatório de Investimentos (Lucro x Prejuízo)</span>
+                            </h3>
+                            <p class="text-xs text-gray-400 mt-1">Análise agrupada dos ativos da carteira ativa divididos entre rentabilidade positiva e negativa.</p>
+                        </div>
+                    </div>
+
+                    <!-- CARDS SINTÉTICOS DE LUCRO VS PREJUÍZO -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-emerald-950/40 p-5 rounded-2xl border-2 border-emerald-500/60 flex items-center justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2 text-emerald-400 font-bold text-xs uppercase tracking-wider">
+                                    <i class="fa-solid fa-arrow-trend-up text-base"></i>
+                                    <span>Investimentos em Lucro</span>
+                                </div>
+                                <h4 id="profit-funds-total-val" class="text-2xl font-black text-emerald-300">R$ 0,00</h4>
+                                <p id="profit-funds-count-badge" class="text-xs text-emerald-200 font-semibold">0 ativos (0% da carteira)</p>
+                            </div>
+                            <div class="p-4 bg-emerald-900/50 rounded-2xl border border-emerald-500/40 text-emerald-400">
+                                <i class="fa-solid fa-circle-up text-3xl"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-950/40 p-5 rounded-2xl border-2 border-red-500/60 flex items-center justify-between">
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2 text-red-400 font-bold text-xs uppercase tracking-wider">
+                                    <i class="fa-solid fa-arrow-trend-down text-base"></i>
+                                    <span>Investimentos em Prejuízo</span>
+                                </div>
+                                <h4 id="loss-funds-total-val" class="text-2xl font-black text-red-300">R$ 0,00</h4>
+                                <p id="loss-funds-count-badge" class="text-xs text-red-200 font-semibold">0 ativos (0% da carteira)</p>
+                            </div>
+                            <div class="p-4 bg-red-900/50 rounded-2xl border border-red-500/40 text-red-400">
+                                <i class="fa-solid fa-circle-down text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TABELA DETALHADA POR ATIVO -->
+                    <div class="bg-black/50 rounded-xl p-4 border border-gray-800 space-y-3">
+                        <h4 class="text-xs font-bold text-gray-300 uppercase">Detalhamento dos Ativos por Desempenho</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-white">
+                                <thead class="bg-gray-950 uppercase font-black text-[10px] text-gray-400 border-b border-gray-800">
+                                    <tr>
+                                        <th class="py-3 px-4">Situação</th>
+                                        <th class="py-3 px-4">Nome do Fundo</th>
+                                        <th class="py-3 px-4 text-right">Saldo Base</th>
+                                        <th class="py-3 px-4 text-right">Saldo Atual</th>
+                                        <th class="py-3 px-4 text-right">Resultado (R$)</th>
+                                        <th class="py-3 px-4 text-right">Rentabilidade (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="profit-loss-report-tbody" class="divide-y divide-gray-800 font-mono"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- QUADRO DE INVESTIMENTOS RECOMENDADO -->
                 <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 shadow-xl space-y-4 text-gray-900">
                     <div class="border-b-2 border-slate-300 pb-4">
@@ -699,7 +763,6 @@
                 unlockSystem();
             }
 
-            // Sugere o mês atual no campo de previdência
             const now = new Date();
             const defaultYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             const pensionMonthEl = document.getElementById('pension-month');
@@ -830,6 +893,7 @@
             renderActiveTable();
             renderClosedTable();
             renderMetrics();
+            renderProfitLossReport();
             renderRecommendedAllocation();
             renderComparisonTable();
             updateCharts();
@@ -1039,8 +1103,7 @@
             if (fundIndex !== -1) {
                 investments[fundIndex].currentBalance = val;
                 investments[fundIndex].lastBalanceUpdate = new Date().toISOString();
-                
-                // Manda o fundo atualizado para o final da lista (fila)
+
                 const updatedFund = investments.splice(fundIndex, 1)[0];
                 investments.push(updatedFund);
 
@@ -1127,6 +1190,85 @@
             document.getElementById('metric-unrealized-profit').innerText = formatCurrency(unrealizedProfit);
             document.getElementById('metric-unrealized-yield').innerText = `${unrealizedYieldPct >= 0 ? '+' : ''}${unrealizedYieldPct.toFixed(2)}%`;
             document.getElementById('metric-realized-profit').innerText = formatCurrency(totalRealizedProfit);
+        }
+
+        /* --- RELATÓRIO ESTATÍSTICO DE INVESTIMENTOS (LUCRO X PREJUÍZO) --- */
+        function renderProfitLossReport() {
+            const tbody = document.getElementById('profit-loss-report-tbody');
+            if (!tbody) return;
+
+            const active = investments.filter(i => i.status === 'active');
+            const totalActiveCount = active.length;
+
+            if (totalActiveCount === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-gray-400">Nenhum fundo ativo cadastrado.</td></tr>`;
+                document.getElementById('profit-funds-total-val').innerText = formatCurrency(0);
+                document.getElementById('profit-funds-count-badge').innerText = `0 ativos (0% da carteira)`;
+                document.getElementById('loss-funds-total-val').innerText = formatCurrency(0);
+                document.getElementById('loss-funds-count-badge').innerText = `0 ativos (0% da carteira)`;
+                return;
+            }
+
+            const profitFunds = [];
+            const lossFunds = [];
+
+            active.forEach(fund => {
+                const base = fund.baseValue !== undefined ? fund.baseValue : fund.initialValue;
+                const yieldVal = fund.currentBalance - base;
+                const yieldPct = base > 0 ? (yieldVal / base) * 100 : 0;
+
+                const fundData = {
+                    ...fund,
+                    base,
+                    yieldVal,
+                    yieldPct
+                };
+
+                if (yieldVal >= 0) {
+                    profitFunds.push(fundData);
+                } else {
+                    lossFunds.push(fundData);
+                }
+            });
+
+            const totalProfitVal = profitFunds.reduce((acc, f) => acc + f.yieldVal, 0);
+            const totalLossVal = lossFunds.reduce((acc, f) => acc + f.yieldVal, 0);
+
+            const profitPct = ((profitFunds.length / totalActiveCount) * 100).toFixed(1);
+            const lossPct = ((lossFunds.length / totalActiveCount) * 100).toFixed(1);
+
+            document.getElementById('profit-funds-total-val').innerText = formatCurrency(totalProfitVal);
+            document.getElementById('profit-funds-count-badge').innerText = `${profitFunds.length} ativos (${profitPct}% da carteira)`;
+
+            document.getElementById('loss-funds-total-val').innerText = formatCurrency(Math.abs(totalLossVal));
+            document.getElementById('loss-funds-count-badge').innerText = `${lossFunds.length} ativos (${lossPct}% da carteira)`;
+
+            profitFunds.sort((a, b) => b.yieldVal - a.yieldVal);
+            lossFunds.sort((a, b) => a.yieldVal - b.yieldVal);
+
+            const allGrouped = [...profitFunds, ...lossFunds];
+
+            tbody.innerHTML = allGrouped.map(item => {
+                const isProfitable = item.yieldVal >= 0;
+                const badge = isProfitable
+                    ? `<span class="px-2.5 py-1 bg-emerald-950 text-emerald-300 border border-emerald-600 rounded-full text-[10px] font-extrabold">🟢 EM LUCRO</span>`
+                    : `<span class="px-2.5 py-1 bg-red-950 text-red-300 border border-red-600 rounded-full text-[10px] font-extrabold">🔴 EM PREJUÍZO</span>`;
+
+                return `
+                    <tr class="hover:bg-gray-800 transition-colors">
+                        <td class="py-3 px-4 font-sans">${badge}</td>
+                        <td class="py-3 px-4 font-bold text-white font-sans">${item.name}</td>
+                        <td class="py-3 px-4 text-right text-gray-300">${formatCurrency(item.base)}</td>
+                        <td class="py-3 px-4 text-right font-bold text-white">${formatCurrency(item.currentBalance)}</td>
+                        <td class="py-3 px-4 text-right font-bold ${isProfitable ? 'text-emerald-400' : 'text-red-400'}">
+                            ${isProfitable ? '+' : ''}${formatCurrency(item.yieldVal)}
+                        </td>
+                        <td class="py-3 px-4 text-right font-bold ${isProfitable ? 'text-emerald-400' : 'text-red-400'}">
+                            ${isProfitable ? '+' : ''}${item.yieldPct.toFixed(2)}%
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         /* --- PARÂMETROS ANUAIS & SALÁRIOS MENSAIS (INSS) --- */
@@ -1333,7 +1475,6 @@
             document.getElementById('pension-contribution').value = rec.contribution;
             document.getElementById('pension-yield').value = rec.yieldVal;
 
-            // Rola suavemente até o formulário de cadastro para edição
             document.getElementById('pension-month').scrollIntoView({ behavior: 'smooth', block: 'center' });
             showToast(`Editando previdência de ${monthKey}. Ajuste e clique em Registrar.`);
         }
@@ -1492,7 +1633,7 @@
             window.print();
         }
 
-        /* --- LÓGICA DE PERFORMANCE DIÁRIA E PROJEÇÃO FIM DE ANO --- */
+        /* --- LÓGICA DE PERFORMANCE DIÁRA E PROJEÇÃO FIM DE ANO --- */
         function calculateDailyAndYearProjection() {
             const now = new Date();
             const startOfYear = new Date(now.getFullYear(), 0, 1);
