@@ -905,9 +905,56 @@
             initCharts();
         }
 
+        // Limpa completamente todos os dados da memória e da tela ao sair
+        function clearSystemState() {
+            investments = [];
+            historicalSnapshots = {};
+            annualParameters = {};
+            salaryRecords = {};
+            pensionRecords = {};
+            currentUser = null;
+
+            // Limpa o conteúdo das tabelas no HTML
+            const activeTbody = document.getElementById('active-investments-tbody');
+            if (activeTbody) activeTbody.innerHTML = '';
+
+            const closedTbody = document.getElementById('closed-investments-tbody');
+            if (closedTbody) closedTbody.innerHTML = '';
+
+            const pensionMonthly = document.getElementById('pension-monthly-tbody');
+            if (pensionMonthly) pensionMonthly.innerHTML = '';
+
+            const pensionAnnual = document.getElementById('pension-annual-tbody');
+            if (pensionAnnual) pensionAnnual.innerHTML = '';
+
+            const salaryTbody = document.getElementById('salary-records-tbody');
+            if (salaryTbody) salaryTbody.innerHTML = '';
+
+            // Reseta badges
+            const activeBadge = document.getElementById('active-count-badge');
+            if (activeBadge) activeBadge.innerText = '0';
+
+            const closedBadge = document.getElementById('closed-count-badge');
+            if (closedBadge) closedBadge.innerText = '0';
+
+            // Destrói os gráficos imediatamente
+            if (riskChartInstance) {
+                riskChartInstance.destroy();
+                riskChartInstance = null;
+            }
+            if (comparisonPieInstance) {
+                comparisonPieInstance.destroy();
+                comparisonPieInstance = null;
+            }
+            if (yoyChartInstance) {
+                yoyChartInstance.destroy();
+                yoyChartInstance = null;
+            }
+        }
+
         function lockSystem() {
             sessionStorage.removeItem("financeiro_user_id");
-            currentUser = null;
+            clearSystemState();
             document.getElementById("auth-overlay").classList.remove("hidden");
             document.getElementById("app-content").classList.add("hidden");
             document.getElementById("auth-password").value = "";
