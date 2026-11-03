@@ -914,6 +914,10 @@
             pensionRecords = {};
             currentUser = null;
 
+            // Oculta imediatamente todo o conteúdo do aplicativo
+            const appContent = document.getElementById("app-content");
+            if (appContent) appContent.classList.add("hidden");
+
             // Limpa o conteúdo das tabelas no HTML
             const activeTbody = document.getElementById('active-investments-tbody');
             if (activeTbody) activeTbody.innerHTML = '';
@@ -930,14 +934,37 @@
             const salaryTbody = document.getElementById('salary-records-tbody');
             if (salaryTbody) salaryTbody.innerHTML = '';
 
-            // Reseta badges
+            // Zeramento explícito de todas as métricas financeiras na tela
+            const metricIds = [
+                'metric-total-initial', 'metric-total-current', 
+                'metric-unrealized-profit', 'metric-realized-profit',
+                'metric-daily-profit', 'metric-projected-year-profit',
+                'inss-avg-salary', 'inss-total-net-avg', 'inss-margin-val'
+            ];
+            metricIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = 'R$ 0,00';
+            });
+
+            // Reseta badges e textos
             const activeBadge = document.getElementById('active-count-badge');
             if (activeBadge) activeBadge.innerText = '0';
 
             const closedBadge = document.getElementById('closed-count-badge');
             if (closedBadge) closedBadge.innerText = '0';
 
-            // Destrói os gráficos imediatamente
+            const userDisplay = document.getElementById('current-user-display-name');
+            if (userDisplay) userDisplay.innerText = '---';
+
+            // Destrói os gráficos e limpa os relogios de tela dos canvas
+            ['riskChart', 'comparisonPieChart', 'yoyChart'].forEach(canvasId => {
+                const canvas = document.getElementById(canvasId);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            });
+
             if (riskChartInstance) {
                 riskChartInstance.destroy();
                 riskChartInstance = null;
@@ -956,7 +983,6 @@
             sessionStorage.removeItem("financeiro_user_id");
             clearSystemState();
             document.getElementById("auth-overlay").classList.remove("hidden");
-            document.getElementById("app-content").classList.add("hidden");
             document.getElementById("auth-password").value = "";
         }
 
