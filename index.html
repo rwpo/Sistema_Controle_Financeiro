@@ -63,7 +63,7 @@
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
 
-    <!-- TELA DE AUTENTICAÇÃO (MÚLTIPLOS USUÁRIOS & TESTE) -->
+    <!-- TELA DE AUTENTICAÇÃO (MÚLTIPLOS USUÁRIOS DINÂMICOS & TESTE) -->
     <div id="auth-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
         <div class="bg-gray-900 rounded-3xl max-w-md w-full p-8 border-2 border-emerald-500 shadow-2xl shadow-emerald-950 text-center space-y-6">
             <div class="inline-flex p-4 bg-emerald-950 text-emerald-400 rounded-2xl border border-emerald-500 shadow-inner">
@@ -79,9 +79,7 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">Selecionar Usuário</label>
                     <select id="auth-user-select" onchange="checkTestUser()" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold text-sm focus:border-emerald-400 focus:outline-none">
-                        <option value="Ricardo Wagner">👤 Ricardo Wagner</option>
-                        <option value="Larissa">👤 Larissa</option>
-                        <option value="Teste">🟢 Perfil Teste (Sem Senha)</option>
+                        <!-- Preenchido dinamicamente pelo Firestore -->
                     </select>
                 </div>
 
@@ -133,13 +131,11 @@
                         <span id="current-user-display" class="text-white">Usuário</span>
                     </div>
 
-                    <!-- BOTÃO DE EXPORTAR BACKUP JSON -->
                     <button onclick="exportBackupJSON()" title="Baixar Backup (JSON)" class="p-2.5 rounded-xl bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-700 transition-all font-bold text-xs flex items-center space-x-1.5">
                         <i class="fa-solid fa-download text-sm"></i>
                         <span class="hidden md:inline">Baixar Backup</span>
                     </button>
 
-                    <!-- BOTÃO DE RESTAURAR BACKUP JSON -->
                     <button onclick="triggerRestoreBackup()" title="Restaurar Backup (JSON)" class="p-2.5 rounded-xl bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-700 transition-all font-bold text-xs flex items-center space-x-1.5">
                         <i class="fa-solid fa-upload text-sm"></i>
                         <span class="hidden md:inline">Restaurar Backup</span>
@@ -802,11 +798,13 @@
         let comparisonPieInstance = null;
         let yoyChartInstance = null;
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
             db = firebase.firestore();
+
+            await populateAuthUserSelect();
 
             const savedUser = sessionStorage.getItem("financeiro_user");
             if (savedUser) {
@@ -822,6 +820,33 @@
             const salaryMonthEl = document.getElementById('salary-month');
             if (salaryMonthEl) salaryMonthEl.value = defaultYM;
         });
+
+        async function populateAuthUserSelect() {
+            const select = document.getElementById("auth-user-select");
+            if (!select) return;
+
+            try {
+                const snap = await db.collection("users_auth").get();
+                let users = snap.docs.map(d => d.id);
+
+                if (!users.includes("Ricardo Wagner")) users.unshift("Ricardo Wagner");
+                if (!users.includes("Larissa")) users.push("Larissa");
+                if (!users.includes("Teste")) users.push("Teste");
+
+                select.innerHTML = users.map(u => {
+                    if (u === "Teste") return `<option value="Teste">🟢 Perfil Teste (Sem Senha)</option>`;
+                    return `<option value="${u}">👤 ${u}</option>`;
+                }).join('');
+                checkTestUser();
+            } catch (err) {
+                console.error("Erro ao carregar usuários de autenticação:", err);
+                select.innerHTML = `
+                    <option value="Ricardo Wagner">👤 Ricardo Wagner</option>
+                    <option value="Larissa">👤 Larissa</option>
+                    <option value="Teste">🟢 Perfil Teste (Sem Senha)</option>
+                `;
+            }
+        }
 
         function checkTestUser() {
             const user = document.getElementById("auth-user-select").value;
@@ -926,6 +951,7 @@
             document.getElementById("app-content").classList.add("hidden");
             document.getElementById("auth-overlay").classList.remove("hidden");
             document.getElementById("auth-password").value = "";
+            populateAuthUserSelect();
         }
 
         function lockSystem() {
@@ -1411,7 +1437,7 @@
             }).join('');
         }
 
-        /* --- CONFIGURAÇÕES DE SENHA & EXCLUSÃO DE USUÁRIO --- */
+        /* --- CONFIGURAÇÕES DE SENHA & EXCLUSÃO DE USUÁRIO (DINÂMICO) --- */
         async function handlePasswordChange(e) {
             e.preventDefault();
             const newPass = document.getElementById("settings-new-password").value;
@@ -1439,38 +1465,49 @@
             }
         }
 
-        function renderUserManagementTable() {
+        async function renderUserManagementTable() {
             const tbody = document.getElementById("user-management-tbody");
-            const usersList = ["Ricardo Wagner", "Larissa", "Teste"];
+            if (!tbody) return;
 
-            tbody.innerHTML = usersList.map(username => {
-                const isCurrent = username === currentUser;
-                const isTest = username === "Teste";
+            try {
+                const snap = await db.collection("users_auth").get();
+                let usersList = snap.docs.map(d => d.id);
+                if (!usersList.includes("Ricardo Wagner")) usersList.push("Ricardo Wagner");
+                if (!usersList.includes("Larissa")) usersList.push("Larissa");
+                if (!usersList.includes("Teste")) usersList.push("Teste");
+                usersList = Array.from(new Set(usersList)).sort();
 
-                return `
-                    <tr class="hover:bg-gray-800 transition-colors">
-                        <td class="py-3.5 px-4 font-bold text-white flex items-center space-x-2">
-                            <span>👤 ${username}</span>
-                            ${isCurrent ? `<span class="bg-emerald-950 text-emerald-400 border border-emerald-600 text-[10px] px-2 py-0.5 rounded-full font-extrabold">Você</span>` : ''}
-                        </td>
-                        <td class="py-3.5 px-4 text-xs font-semibold ${isTest ? 'text-gray-400' : 'text-emerald-400'}">
-                            ${isTest ? 'Sem Senha (Perfil Livre)' : 'Protegido por Senha (SHA-256)'}
-                        </td>
-                        <td class="py-3.5 px-4 text-center">
-                            ${isTest ? '<span class="text-xs text-gray-500 font-bold">Protegido</span>' : `
-                                <button onclick="deleteUserAccount('${username}')" class="px-3 py-1.5 bg-red-950 hover:bg-red-900 text-red-300 font-bold text-xs rounded-xl border border-red-700/60 transition-all flex items-center space-x-1 mx-auto">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                    <span>Excluir Usuário</span>
-                                </button>
-                            `}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+                tbody.innerHTML = usersList.map(username => {
+                    const isCurrent = username === currentUser;
+                    const isTest = username === "Teste";
+
+                    return `
+                        <tr class="hover:bg-gray-800 transition-colors">
+                            <td class="py-3.5 px-4 font-bold text-white flex items-center space-x-2">
+                                <span>👤 ${username}</span>
+                                ${isCurrent ? `<span class="bg-emerald-950 text-emerald-400 border border-emerald-600 text-[10px] px-2 py-0.5 rounded-full font-extrabold">Você</span>` : ''}
+                            </td>
+                            <td class="py-3.5 px-4 text-xs font-semibold ${isTest ? 'text-gray-400' : 'text-emerald-400'}">
+                                ${isTest ? 'Sem Senha (Perfil Livre)' : 'Protegido por Senha (SHA-256)'}
+                            </td>
+                            <td class="py-3.5 px-4 text-center">
+                                ${isTest ? '<span class="text-xs text-gray-500 font-bold">Protegido</span>' : `
+                                    <button onclick="deleteUserAccount('${username}')" class="px-3 py-1.5 bg-red-950 hover:bg-red-900 text-red-300 font-bold text-xs rounded-xl border border-red-700/60 transition-all flex items-center space-x-1 mx-auto">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        <span>Excluir Usuário</span>
+                                    </button>
+                                `}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("Erro ao renderizar usuários:", err);
+            }
         }
 
         async function deleteUserAccount(usernameToDelete) {
-            const confirmMsg = `ATENÇÃO! Você tem certeza que deseja excluir o usuário "${usernameToDelete}"?\n\nTODOS os fundos, saldos, salários, teto do INSS e históricos deste usuário serão PERMANENTEMENTE APAGADOS e não poderão ser recuperados!`;
+            const confirmMsg = `ATENÇÃO! Você tem certeza que deseja excluir o usuário "${usernameToDelete}"?\n\nTODOS os fundos, saldos, salários, teto do INSS e relatórios históricos deste usuário serão PERMANENTEMENTE APAGADOS e não poderão ser recuperados!`;
             
             if (!confirm(confirmMsg)) return;
 
@@ -1481,7 +1518,7 @@
             }
 
             try {
-                // 1. Apaga autenticação
+                // 1. Apaga autenticação no Firestore
                 await db.collection("users_auth").doc(usernameToDelete).delete();
 
                 // 2. Apaga todas as subcoleções em users_data/{usernameToDelete}
@@ -1500,6 +1537,7 @@
                     setTimeout(() => lockSystem(), 1500);
                 } else {
                     renderUserManagementTable();
+                    populateAuthUserSelect();
                 }
             } catch (err) {
                 console.error("Erro ao excluir usuário:", err);
@@ -1554,7 +1592,6 @@
 
                     const batch = db.batch();
 
-                    // 1. Limpa coleção atual de investimentos e insere novos
                     const oldInvSnap = await db.collection(getUserCollectionPath("investments")).get();
                     oldInvSnap.docs.forEach(d => batch.delete(d.ref));
                     if (data.investments) {
@@ -1564,7 +1601,6 @@
                         });
                     }
 
-                    // 2. Histórico
                     if (data.historicalSnapshots) {
                         Object.keys(data.historicalSnapshots).forEach(k => {
                             const ref = db.collection(getUserCollectionPath("history_snapshots")).doc(k);
@@ -1572,7 +1608,6 @@
                         });
                     }
 
-                    // 3. Parâmetros Anuais
                     if (data.annualParameters) {
                         Object.keys(data.annualParameters).forEach(k => {
                             const ref = db.collection(getUserCollectionPath("annual_parameters")).doc(k);
@@ -1580,7 +1615,6 @@
                         });
                     }
 
-                    // 4. Salários
                     if (data.salaryRecords) {
                         Object.keys(data.salaryRecords).forEach(k => {
                             const ref = db.collection(getUserCollectionPath("salary_records")).doc(k);
@@ -1588,7 +1622,6 @@
                         });
                     }
 
-                    // 5. Previdência
                     if (data.pensionRecords) {
                         Object.keys(data.pensionRecords).forEach(k => {
                             const ref = db.collection(getUserCollectionPath("pension_records")).doc(k);
@@ -1605,7 +1638,7 @@
                 }
             };
             reader.readAsText(file);
-            e.target.value = ""; // Reset do input file
+            e.target.value = "";
         }
 
         /* --- PARÂMETROS ANUAIS & SALÁRIOS (INSS) --- */
