@@ -992,6 +992,9 @@
                 const snapshot = await db.collection(getUserCollectionPath("investments")).get();
                 investments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+                // Garante que os fundos sejam ordenados pela propriedade orderIndex se ela existir
+                investments.sort((a, b) => (a.orderIndex !== undefined ? a.orderIndex : 0) - (b.orderIndex !== undefined ? b.orderIndex : 0));
+
                 // MIGRAÇÃO AUTOMÁTICA: Se o usuário logado for 'Ricardo Wagner' e os dados estiverem zerados,
                 // tenta resgatar os dados antigos salvos na raiz do Firebase
                 if (investments.length === 0 && currentUser.name.toLowerCase() === "ricardo wagner") {
@@ -1007,6 +1010,9 @@
                 const historySnap = await db.collection(getUserCollectionPath("history_snapshots")).get();
                 historicalSnapshots = {};
                 historySnap.docs.forEach(doc => { historicalSnapshots[doc.id] = doc.data(); });
+
+                // VERIFICAÇÃO AUTOMÁTICA DE VIRADA DE MÊS
+                await checkAndAutoClosePreviousMonth();
 
                 const paramsSnap = await db.collection(getUserCollectionPath("annual_parameters")).get();
                 annualParameters = {};
@@ -1041,6 +1047,39 @@
             await saveData();
         }
 
+        // Função para consolidar automaticamente o histórico do mês anterior se ainda não existir
+        async function checkAndAutoClosePreviousMonth() {
+            if (!currentUser || investments.length === 0) return;
+
+            const now = new Date();
+            const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            const prevYearMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`;
+
+            // Se o mês anterior ainda não tiver um snapshot registrado no histórico
+            if (!historicalSnapshots[prevYearMonthKey]) {
+                const active = investments.filter(i => i.status === 'active');
+                const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
+                const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
+                const netYield = totalCurrent - totalBase;
+
+                const autoSnapshot = {
+                    totalBase: totalBase,
+                    totalCurrent: totalCurrent,
+                    yield: netYield,
+                    updatedAt: now.toISOString(),
+                    autoClosed: true
+                };
+
+                historicalSnapshots[prevYearMonthKey] = autoSnapshot;
+
+                try {
+                    await db.collection(getUserCollectionPath("history_snapshots")).doc(prevYearMonthKey).set(autoSnapshot);
+                } catch (err) {
+                    console.error("Erro ao registrar fechamento automático do mês anterior:", err);
+                }
+            }
+        }
+
         async function saveData() {
             if (!currentUser) return;
             const now = new Date();
@@ -1050,6 +1089,11 @@
             const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
             const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
             const netYield = totalCurrent - totalBase;
+
+            // Atualiza a propriedade orderIndex com a posição atual no array
+            investments.forEach((item, index) => {
+                item.orderIndex = index;
+            });
 
             historicalSnapshots[yearMonthKey] = {
                 totalBase: totalBase,
@@ -2124,7 +2168,7 @@
             }
 
             const backupData = {
-                version: "2.0",
+                version: "3.0",
                 user: currentUser.name,
                 userId: currentUser.id,
                 exportedAt: new Date().toISOString(),
@@ -2142,13 +2186,13 @@
             const a = document.createElement('a');
             a.href = url;
             const dateSuffix = new Date().toISOString().split('T')[0];
-            a.download = `backup_financeiro_${currentUser.name.toLowerCase().replace(/\s+/g, '_')}_${dateSuffix}.json`;
+            a.download = `backup_financeiro_v3_${currentUser.name.toLowerCase().replace(/\s+/g, '_')}_${dateSuffix}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            showToast("Backup baixado com sucesso!");
+            showToast("Backup v3.0 baixado com sucesso!");
         }
     </script>
 </body>
