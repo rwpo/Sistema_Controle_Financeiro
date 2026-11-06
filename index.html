@@ -108,6 +108,9 @@
     <!-- TOAST DE NOTIFICAÇÃO VISUAL -->
     <div id="toast-container" class="fixed top-24 right-5 z-50 flex flex-col space-y-3 pointer-events-none"></div>
 
+    <!-- INPUT ESCONDIDO PARA RESTAURAR BACKUP -->
+    <input type="file" id="restore-backup-file-input" accept=".json" class="hidden" onchange="handleRestoreBackupFile(event)">
+
     <!-- CONTEÚDO DA APLICAÇÃO -->
     <div id="app-content" class="hidden min-h-screen flex flex-col">
 
@@ -124,15 +127,22 @@
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-3 sm:space-x-4">
+                <div class="flex items-center space-x-2 sm:space-x-3">
                     <div id="firebase-status-badge" class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/60 shadow-inner">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         <span id="current-user-display" class="text-white">Usuário</span>
                     </div>
 
                     <!-- BOTÃO DE EXPORTAR BACKUP JSON -->
-                    <button onclick="exportBackupJSON()" title="Baixar Backup (JSON)" class="p-2.5 rounded-xl bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-700 transition-all font-bold text-sm">
-                        <i class="fa-solid fa-download text-base"></i>
+                    <button onclick="exportBackupJSON()" title="Baixar Backup (JSON)" class="p-2.5 rounded-xl bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-700 transition-all font-bold text-xs flex items-center space-x-1.5">
+                        <i class="fa-solid fa-download text-sm"></i>
+                        <span class="hidden md:inline">Baixar Backup</span>
+                    </button>
+
+                    <!-- BOTÃO DE RESTAURAR BACKUP JSON -->
+                    <button onclick="triggerRestoreBackup()" title="Restaurar Backup (JSON)" class="p-2.5 rounded-xl bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-700 transition-all font-bold text-xs flex items-center space-x-1.5">
+                        <i class="fa-solid fa-upload text-sm"></i>
+                        <span class="hidden md:inline">Restaurar Backup</span>
                     </button>
 
                     <button onclick="lockSystem()" title="Sair / Bloquear" class="p-2.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 border border-red-700/60 transition-all font-bold text-sm">
@@ -607,8 +617,9 @@
                 </div>
             </section>
 
-            <!-- ABA 5: CONFIGURAÇÕES (MUDANÇA DE SENHA) -->
-            <section id="tab-content-settings" class="tab-content hidden max-w-2xl mx-auto space-y-6">
+            <!-- ABA 5: CONFIGURAÇÕES & GERENCIAMENTO DE USUÁRIOS -->
+            <section id="tab-content-settings" class="tab-content hidden max-w-4xl mx-auto space-y-8">
+                <!-- MUDANÇA DE SENHA -->
                 <div class="bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-emerald-500 shadow-2xl space-y-6">
                     <h2 class="text-xl font-black text-white border-b-2 border-gray-800 pb-4 flex items-center space-x-3">
                         <i class="fa-solid fa-key text-emerald-400"></i>
@@ -634,6 +645,36 @@
                             </button>
                         </div>
                     </form>
+                </div>
+
+                <!-- GERENCIAMENTO E EXCLUSÃO DE USUÁRIOS -->
+                <div class="bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-red-500/80 shadow-2xl space-y-6">
+                    <div class="border-b-2 border-gray-800 pb-4">
+                        <h2 class="text-xl font-black text-white flex items-center space-x-3">
+                            <i class="fa-solid fa-users-slash text-red-400"></i>
+                            <span>Gerenciamento de Perfis e Usuários</span>
+                        </h2>
+                        <p class="text-xs text-red-300 font-semibold mt-1">
+                            ⚠️ <strong>Atenção:</strong> A exclusão de um perfil é uma ação irreversível. Todos os fundos, salários, teto INSS e relatórios históricos do usuário selecionado serão permanentemente apagados do sistema.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="text-sm font-bold text-gray-300">Usuários Cadastrados no Sistema</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-white">
+                                <thead class="bg-gray-950 text-white uppercase text-xs font-black border-b border-gray-800">
+                                    <tr>
+                                        <th class="py-3 px-4">Nome do Usuário</th>
+                                        <th class="py-3 px-4">Status de Autenticação</th>
+                                        <th class="py-3 px-4 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-management-tbody" class="divide-y divide-gray-800">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -1038,6 +1079,7 @@
             calculateINSSComparison();
             renderSalaryTable();
             renderPensionTables();
+            renderUserManagementTable();
         }
 
         function switchTab(tabId) {
@@ -1369,7 +1411,7 @@
             }).join('');
         }
 
-        /* --- CONFIGURAÇÕES DE SENHA --- */
+        /* --- CONFIGURAÇÕES DE SENHA & EXCLUSÃO DE USUÁRIO --- */
         async function handlePasswordChange(e) {
             e.preventDefault();
             const newPass = document.getElementById("settings-new-password").value;
@@ -1397,7 +1439,75 @@
             }
         }
 
-        /* --- BACKUP JSON --- */
+        function renderUserManagementTable() {
+            const tbody = document.getElementById("user-management-tbody");
+            const usersList = ["Ricardo Wagner", "Larissa", "Teste"];
+
+            tbody.innerHTML = usersList.map(username => {
+                const isCurrent = username === currentUser;
+                const isTest = username === "Teste";
+
+                return `
+                    <tr class="hover:bg-gray-800 transition-colors">
+                        <td class="py-3.5 px-4 font-bold text-white flex items-center space-x-2">
+                            <span>👤 ${username}</span>
+                            ${isCurrent ? `<span class="bg-emerald-950 text-emerald-400 border border-emerald-600 text-[10px] px-2 py-0.5 rounded-full font-extrabold">Você</span>` : ''}
+                        </td>
+                        <td class="py-3.5 px-4 text-xs font-semibold ${isTest ? 'text-gray-400' : 'text-emerald-400'}">
+                            ${isTest ? 'Sem Senha (Perfil Livre)' : 'Protegido por Senha (SHA-256)'}
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            ${isTest ? '<span class="text-xs text-gray-500 font-bold">Protegido</span>' : `
+                                <button onclick="deleteUserAccount('${username}')" class="px-3 py-1.5 bg-red-950 hover:bg-red-900 text-red-300 font-bold text-xs rounded-xl border border-red-700/60 transition-all flex items-center space-x-1 mx-auto">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    <span>Excluir Usuário</span>
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function deleteUserAccount(usernameToDelete) {
+            const confirmMsg = `ATENÇÃO! Você tem certeza que deseja excluir o usuário "${usernameToDelete}"?\n\nTODOS os fundos, saldos, salários, teto do INSS e históricos deste usuário serão PERMANENTEMENTE APAGADOS e não poderão ser recuperados!`;
+            
+            if (!confirm(confirmMsg)) return;
+
+            const doubleCheck = prompt(`Para confirmar a exclusão definitiva, digite o nome do usuário (${usernameToDelete}) abaixo:`);
+            if (doubleCheck !== usernameToDelete) {
+                alert("Confirmação incorreta. A exclusão foi cancelada.");
+                return;
+            }
+
+            try {
+                // 1. Apaga autenticação
+                await db.collection("users_auth").doc(usernameToDelete).delete();
+
+                // 2. Apaga todas as subcoleções em users_data/{usernameToDelete}
+                const collections = ["investments", "history_snapshots", "annual_parameters", "salary_records", "pension_records"];
+                for (const col of collections) {
+                    const snap = await db.collection(`users_data/${usernameToDelete}/${col}`).get();
+                    const batch = db.batch();
+                    snap.docs.forEach(doc => batch.delete(doc.ref));
+                    await batch.commit();
+                }
+
+                showToast(`Usuário ${usernameToDelete} e todos os seus dados foram excluídos.`, "purple");
+
+                // Se o usuário excluído for o usuário logado no momento, faz logout
+                if (usernameToDelete === currentUser) {
+                    setTimeout(() => lockSystem(), 1500);
+                } else {
+                    renderUserManagementTable();
+                }
+            } catch (err) {
+                console.error("Erro ao excluir usuário:", err);
+                showToast("Erro ao excluir usuário do servidor.", "error");
+            }
+        }
+
+        /* --- BACKUP JSON: EXPORTAR & RESTAURAR --- */
         function exportBackupJSON() {
             const backupData = {
                 user: currentUser,
@@ -1418,6 +1528,84 @@
             dlAnchorElem.click();
             dlAnchorElem.remove();
             showToast("Backup baixado com sucesso!");
+        }
+
+        function triggerRestoreBackup() {
+            document.getElementById('restore-backup-file-input').click();
+        }
+
+        async function handleRestoreBackupFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+
+                    if (!data.investments && !data.historicalSnapshots) {
+                        alert("Arquivo de backup inválido ou incompatível.");
+                        return;
+                    }
+
+                    if (!confirm(`Deseja restaurar o backup para o perfil "${currentUser}"? Os dados atuais da conta serão substituídos pelos dados do arquivo.`)) {
+                        return;
+                    }
+
+                    const batch = db.batch();
+
+                    // 1. Limpa coleção atual de investimentos e insere novos
+                    const oldInvSnap = await db.collection(getUserCollectionPath("investments")).get();
+                    oldInvSnap.docs.forEach(d => batch.delete(d.ref));
+                    if (data.investments) {
+                        data.investments.forEach((item, idx) => {
+                            const ref = db.collection(getUserCollectionPath("investments")).doc(item.id || ('fund_' + idx));
+                            batch.set(ref, { ...item, orderIndex: item.orderIndex !== undefined ? item.orderIndex : idx });
+                        });
+                    }
+
+                    // 2. Histórico
+                    if (data.historicalSnapshots) {
+                        Object.keys(data.historicalSnapshots).forEach(k => {
+                            const ref = db.collection(getUserCollectionPath("history_snapshots")).doc(k);
+                            batch.set(ref, data.historicalSnapshots[k]);
+                        });
+                    }
+
+                    // 3. Parâmetros Anuais
+                    if (data.annualParameters) {
+                        Object.keys(data.annualParameters).forEach(k => {
+                            const ref = db.collection(getUserCollectionPath("annual_parameters")).doc(k);
+                            batch.set(ref, data.annualParameters[k]);
+                        });
+                    }
+
+                    // 4. Salários
+                    if (data.salaryRecords) {
+                        Object.keys(data.salaryRecords).forEach(k => {
+                            const ref = db.collection(getUserCollectionPath("salary_records")).doc(k);
+                            batch.set(ref, data.salaryRecords[k]);
+                        });
+                    }
+
+                    // 5. Previdência
+                    if (data.pensionRecords) {
+                        Object.keys(data.pensionRecords).forEach(k => {
+                            const ref = db.collection(getUserCollectionPath("pension_records")).doc(k);
+                            batch.set(ref, data.pensionRecords[k]);
+                        });
+                    }
+
+                    await batch.commit();
+                    showToast("Backup restaurado com sucesso!");
+                    await loadUserData();
+                } catch (err) {
+                    console.error("Erro ao restaurar backup:", err);
+                    alert("Erro ao ler o arquivo de backup. Verifique se o formato JSON está correto.");
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = ""; // Reset do input file
         }
 
         /* --- PARÂMETROS ANUAIS & SALÁRIOS (INSS) --- */
