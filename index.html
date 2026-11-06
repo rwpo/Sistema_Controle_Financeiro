@@ -901,7 +901,6 @@
                 const invSnap = await db.collection(getUserCollectionPath("investments")).orderBy("orderIndex", "asc").get();
                 investments = invSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // Migração automática de dados legados se estiver vazio
                 if (investments.length === 0 && currentUser === "Ricardo Wagner") {
                     const legacySnap = await db.collection("investments").get();
                     if (!legacySnap.empty) {
@@ -942,7 +941,6 @@
             const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
             const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
 
-            // Calcula o lucro do mês com base na diferença para o saldo do mês anterior
             let netYield = totalCurrent - totalBase;
             const sortedMonths = Object.keys(historicalSnapshots).sort();
             if (sortedMonths.length > 0) {
