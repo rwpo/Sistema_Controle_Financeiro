@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro - Desenvolvido por Ricardo Wagner</title>
+    <title>Controle Financeiro - Versão 3.0 - Desenvolvido por Ricardo Wagner</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -63,50 +63,45 @@
 </head>
 <body class="bg-black text-white min-h-screen flex flex-col font-sans antialiased transition-colors duration-200">
 
-    <!-- TELA DE AUTENTICAÇÃO MULTI-USUÁRIO -->
+    <!-- TELA DE AUTENTICAÇÃO (MÚLTIPLOS USUÁRIOS & TESTE) -->
     <div id="auth-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
         <div class="bg-gray-900 rounded-3xl max-w-md w-full p-8 border-2 border-emerald-500 shadow-2xl shadow-emerald-950 text-center space-y-6">
             <div class="inline-flex p-4 bg-emerald-950 text-emerald-400 rounded-2xl border border-emerald-500 shadow-inner">
-                <i class="fa-solid fa-users-gear text-3xl" aria-hidden="true"></i>
+                <i class="fa-solid fa-lock text-3xl" aria-hidden="true"></i>
             </div>
             
             <div>
-                <h2 class="text-2xl font-black text-white tracking-wide">Acesso ao Sistema</h2>
-                <p class="text-xs text-emerald-400 font-bold uppercase tracking-wider mt-1">Selecione seu Usuário</p>
+                <h2 class="text-2xl font-black text-white tracking-wide">Acesso Restrito</h2>
+                <p class="text-xs text-emerald-400 font-bold uppercase tracking-wider mt-1">Controle Financeiro - v3.0</p>
             </div>
 
-            <form onsubmit="handleAuth(event)" class="space-y-4">
-                <div class="space-y-3 text-left">
-                    <label class="block text-xs font-bold text-gray-300 uppercase">Usuário:</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
-                            <i class="fa-solid fa-user"></i>
-                        </span>
-                        <select id="auth-user-select" onchange="togglePasswordInput()" class="w-full bg-gray-950 border-2 border-gray-600 rounded-2xl py-4 pl-12 pr-4 text-white font-bold focus:border-emerald-400 focus:outline-none transition-all">
-                            <option value="teste">🟢 Perfil Teste (Sem Senha)</option>
-                        </select>
-                    </div>
+            <form onsubmit="handleAuth(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">Selecionar Usuário</label>
+                    <select id="auth-user-select" onchange="checkTestUser()" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold text-sm focus:border-emerald-400 focus:outline-none">
+                        <option value="Ricardo Wagner">👤 Ricardo Wagner</option>
+                        <option value="Larissa">👤 Larissa</option>
+                        <option value="Teste">🟢 Perfil Teste (Sem Senha)</option>
+                    </select>
                 </div>
 
-                <div id="password-field-container" class="space-y-3 text-left hidden">
-                    <label class="block text-xs font-bold text-gray-300 uppercase">Senha:</label>
+                <div id="auth-password-container" class="relative">
+                    <label class="block text-xs font-bold text-gray-300 mb-1">Senha de Acesso</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
                             <i class="fa-solid fa-key"></i>
                         </span>
-                        <input type="password" id="auth-password" placeholder="Digite sua senha" class="w-full bg-gray-950 border-2 border-gray-600 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-gray-500 font-bold focus:border-emerald-400 focus:outline-none transition-all">
+                        <input type="password" id="auth-password" placeholder="Digite sua senha" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-500 font-bold focus:border-emerald-400 focus:outline-none transition-all text-sm">
                     </div>
                 </div>
 
-                <button type="submit" id="auth-submit-btn" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-2xl shadow-lg shadow-emerald-950 transition-all text-base flex items-center justify-center space-x-2">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    <span>Entrar no Perfil Teste</span>
+                <button type="submit" class="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl shadow-lg shadow-emerald-950 transition-all text-sm mt-2">
+                    Entrar no Sistema
                 </button>
-                
-                <p id="auth-error" class="text-xs font-bold text-red-400 hidden">Senha incorreta. Tente novamente.</p>
+                <p id="auth-error" class="text-xs font-bold text-red-400 hidden text-center">Senha incorreta. Tente novamente.</p>
             </form>
 
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Desenvolvido por Ricardo Wagner</p>
+            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold pt-2 border-t border-gray-800">Desenvolvido por Ricardo Wagner</p>
         </div>
     </div>
 
@@ -124,27 +119,24 @@
                         <i class="fa-solid fa-wallet text-2xl" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl font-extrabold text-white tracking-wide">Controle Financeiro</h1>
-                        <p class="text-xs text-emerald-400 font-bold tracking-wider uppercase mt-0.5">
-                            Usuário Conectado: <span id="current-user-display-name" class="text-white underline">Perfil Teste</span>
-                        </p>
+                        <h1 class="text-xl font-extrabold text-white tracking-wide">Controle Financeiro <span class="text-xs bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-600 ml-2">v3.0</span></h1>
+                        <p class="text-xs text-emerald-400 font-bold tracking-wider uppercase mt-0.5">Desenvolvido por Ricardo Wagner</p>
                     </div>
                 </div>
 
                 <div class="flex items-center space-x-3 sm:space-x-4">
-                    <div id="firebase-status-badge" class="hidden sm:flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border-2 border-emerald-500/60 shadow-inner">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span class="text-white">Firebase Conectado</span>
+                    <div id="firebase-status-badge" class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/60 shadow-inner">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="current-user-display" class="text-white">Usuário</span>
                     </div>
 
-                    <button onclick="downloadBackup()" title="Baixar Backup dos Dados" class="p-2.5 rounded-xl bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-700/60 transition-all font-bold text-sm flex items-center space-x-1.5">
-                        <i class="fa-solid fa-download text-lg"></i>
-                        <span class="hidden md:inline text-xs">Backup (JSON)</span>
+                    <!-- BOTÃO DE EXPORTAR BACKUP JSON -->
+                    <button onclick="exportBackupJSON()" title="Baixar Backup (JSON)" class="p-2.5 rounded-xl bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-700 transition-all font-bold text-sm">
+                        <i class="fa-solid fa-download text-base"></i>
                     </button>
 
-                    <button onclick="lockSystem()" title="Sair / Trocar de Usuário" class="p-2.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 border border-red-700/60 transition-all font-bold text-sm flex items-center space-x-1.5">
-                        <i class="fa-solid fa-right-from-bracket text-lg"></i>
-                        <span class="hidden md:inline text-xs">Sair</span>
+                    <button onclick="lockSystem()" title="Sair / Bloquear" class="p-2.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 border border-red-700/60 transition-all font-bold text-sm">
+                        <i class="fa-solid fa-right-from-bracket text-base"></i>
                     </button>
                 </div>
             </div>
@@ -182,7 +174,7 @@
                 </button>
 
                 <button onclick="switchTab('settings')" id="tab-btn-settings" class="tab-btn flex items-center space-x-2.5 px-5 py-3 font-bold text-sm rounded-t-xl transition-all border-b-4 border-transparent text-white hover:bg-gray-900/60">
-                    <i class="fa-solid fa-gear text-base text-amber-400"></i>
+                    <i class="fa-solid fa-gear text-base text-emerald-400"></i>
                     <span>Configurações</span>
                 </button>
             </nav>
@@ -230,6 +222,7 @@
 
             <!-- ABA 2: VISÃO GERAL -->
             <section id="tab-content-dashboard" class="tab-content hidden space-y-8">
+                
                 <!-- MÉTRICAS PRINCIPAIS -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
@@ -248,6 +241,40 @@
                     <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl">
                         <p class="text-xs font-bold text-white uppercase tracking-wider">Lucro Realizado (Encerrados + Saques)</p>
                         <h2 id="metric-realized-profit" class="text-2xl font-black text-white mt-1">R$ 0,00</h2>
+                    </div>
+                </div>
+
+                <!-- RELATÓRIO: INVESTIMENTOS (LUCRO X PREJUÍZO) -->
+                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-gray-800 pb-3">
+                        <h3 class="text-lg font-black text-white flex items-center space-x-3">
+                            <i class="fa-solid fa-chart-line text-emerald-400 text-xl"></i>
+                            <span>Relatório de Investimentos (Lucro x Prejuízo)</span>
+                        </h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                        <div class="bg-emerald-950/40 p-4 rounded-xl border border-emerald-600/60">
+                            <p class="text-xs font-bold text-emerald-300 uppercase">Investimentos com Lucro</p>
+                            <h4 id="report-profit-count" class="text-xl font-black text-emerald-400 mt-1">0 ativos (R$ 0,00)</h4>
+                        </div>
+                        <div class="bg-red-950/40 p-4 rounded-xl border border-red-600/60">
+                            <p class="text-xs font-bold text-red-300 uppercase">Investimentos com Prejuízo</p>
+                            <h4 id="report-loss-count" class="text-xl font-black text-red-400 mt-1">0 ativos (R$ 0,00)</h4>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto pt-2">
+                        <table class="w-full text-left text-sm text-white">
+                            <thead class="bg-gray-950 text-white uppercase text-[10px] font-black border-b border-gray-800">
+                                <tr>
+                                    <th class="py-3 px-4">Fundo / Ativo</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4 text-right">Saldo Base</th>
+                                    <th class="py-3 px-4 text-right">Saldo Atual</th>
+                                    <th class="py-3 px-4 text-right">Lucro / Prejuízo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="profit-loss-tbody" class="divide-y divide-gray-800 font-mono text-xs"></tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -299,7 +326,6 @@
                         </div>
                     </div>
 
-                    <!-- 1. TETO DO INSS E REGISTRO MENSAL DE SALÁRIO -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-black/40 p-5 rounded-xl border border-gray-800 space-y-4">
                             <div>
@@ -325,7 +351,6 @@
                             </div>
                         </div>
 
-                        <!-- 2. RESULTADOS DO INSS -->
                         <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 content-start">
                             <div class="bg-black/50 p-5 rounded-xl border border-gray-800 space-y-1">
                                 <p class="text-xs font-bold text-gray-400 uppercase">Média Salarial Líquida</p>
@@ -353,7 +378,6 @@
                         </div>
                     </div>
 
-                    <!-- 3. TABELA DE HISTÓRICO DE SALÁRIOS DO ANO -->
                     <div class="bg-black/50 rounded-xl p-4 border border-gray-800 space-y-3">
                         <h4 class="text-xs font-bold text-gray-300 uppercase">Histórico de Salários Informados no Ano</h4>
                         <div class="overflow-x-auto">
@@ -449,16 +473,13 @@
 
             <!-- ABA PREVIDÊNCIA PRIVADA -->
             <section id="tab-content-pension" class="tab-content hidden space-y-8">
-                <!-- FORMULÁRIO DE REGISTRO MENSAL DA PREVIDÊNCIA -->
                 <div class="bg-gray-900 p-6 sm:p-8 rounded-2xl border-2 border-blue-500 shadow-xl space-y-6">
-                    <div class="border-b-2 border-gray-800 pb-4 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
-                        <div>
-                            <h2 class="text-xl font-black text-white flex items-center space-x-3">
-                                <i class="fa-solid fa-shield-halved text-blue-400 text-2xl"></i>
-                                <span>Previdência Privada (Acompanhamento Independente)</span>
-                            </h2>
-                            <p class="text-xs text-blue-300 font-semibold mt-1">Este subsistema funciona de forma totalmente separada da carteira de investimentos ativa.</p>
-                        </div>
+                    <div class="border-b-2 border-gray-800 pb-4">
+                        <h2 class="text-xl font-black text-white flex items-center space-x-3">
+                            <i class="fa-solid fa-shield-halved text-blue-400 text-2xl"></i>
+                            <span>Previdência Privada (Acompanhamento Independente)</span>
+                        </h2>
+                        <p class="text-xs text-blue-300 font-semibold mt-1">Este subsistema funciona de forma totalmente separada da carteira de investimentos ativa.</p>
                     </div>
 
                     <form onsubmit="handlePensionSave(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-6 items-end bg-black/40 p-5 rounded-xl border border-gray-800">
@@ -482,16 +503,13 @@
                     </form>
                 </div>
 
-                <!-- TABELA DE RESUMO ANUAL DA PREVIDÊNCIA -->
                 <div class="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 shadow-xl space-y-4 text-gray-900">
                     <div class="border-b-2 border-slate-300 pb-3">
                         <h3 class="text-lg font-black text-gray-900 flex items-center space-x-3">
                             <i class="fa-solid fa-table-list text-blue-700 text-xl"></i>
                             <span>Resumo Anual da Previdência Privada</span>
                         </h3>
-                        <p class="text-xs font-bold text-gray-700 mt-1">Consolidado de 12 meses de contribuições, rendimentos e saldo final por ano.</p>
                     </div>
-
                     <div class="overflow-x-auto bg-white rounded-xl p-2 border border-slate-300 shadow-inner">
                         <table class="w-full text-left text-sm text-gray-900">
                             <thead class="bg-slate-200 text-gray-900 uppercase text-xs font-black border-b-2 border-slate-300">
@@ -507,7 +525,6 @@
                     </div>
                 </div>
 
-                <!-- HISTÓRICO DETALHADO MENSAL PARA CONSULTA -->
                 <div class="bg-gray-900 rounded-2xl p-6 border-2 border-gray-700 shadow-xl space-y-4">
                     <div class="border-b-2 border-gray-800 pb-3">
                         <h3 class="text-base font-extrabold text-white flex items-center space-x-2">
@@ -590,53 +607,32 @@
                 </div>
             </section>
 
-            <!-- ABA 5: CONFIGURAÇÕES (GESTÃO DE SENHAS E USUÁRIOS) -->
-            <section id="tab-content-settings" class="tab-content hidden space-y-8 max-w-4xl mx-auto">
-                <div class="bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-700 shadow-xl space-y-6">
-                    <div class="border-b-2 border-gray-800 pb-4">
-                        <h2 class="text-xl font-black text-white flex items-center space-x-3">
-                            <i class="fa-solid fa-key text-amber-400 text-2xl"></i>
-                            <span>Alterar Minha Senha</span>
-                        </h2>
-                        <p class="text-xs text-gray-400 mt-1">A sua nova senha é criptografada no seu próprio navegador usando algoritmo SHA-256 antes de ser salva.</p>
-                    </div>
+            <!-- ABA 5: CONFIGURAÇÕES (MUDANÇA DE SENHA) -->
+            <section id="tab-content-settings" class="tab-content hidden max-w-2xl mx-auto space-y-6">
+                <div class="bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-emerald-500 shadow-2xl space-y-6">
+                    <h2 class="text-xl font-black text-white border-b-2 border-gray-800 pb-4 flex items-center space-x-3">
+                        <i class="fa-solid fa-key text-emerald-400"></i>
+                        <span>Configurações de Segurança e Senha</span>
+                    </h2>
 
-                    <form onsubmit="handleChangePassword(event)" class="space-y-4 max-w-md">
-                        <div id="change-pass-current-container">
-                            <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Senha Atual *</label>
-                            <input type="password" id="change-pass-current" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold">
+                    <form onsubmit="handlePasswordChange(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-300 mb-1">Usuário Conectado</label>
+                            <input type="text" id="settings-username-display" disabled class="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-3 text-gray-400 font-bold text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Nova Senha *</label>
-                            <input type="password" id="change-pass-new" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold">
+                            <label class="block text-xs font-bold text-gray-300 mb-1">Nova Senha de Acesso</label>
+                            <input type="password" id="settings-new-password" required placeholder="Digite a nova senha" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold text-sm focus:border-emerald-400">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Confirmar Nova Senha *</label>
-                            <input type="password" id="change-pass-confirm" required class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold">
+                            <label class="block text-xs font-bold text-gray-300 mb-1">Confirmar Nova Senha</label>
+                            <input type="password" id="settings-confirm-password" required placeholder="Confirme a nova senha" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold text-sm focus:border-emerald-400">
                         </div>
-                        <button type="submit" class="px-6 py-3 bg-amber-600 hover:bg-amber-500 text-white font-extrabold rounded-xl text-sm transition-all shadow">
-                            <i class="fa-solid fa-lock mr-2"></i>Atualizar Senha
-                        </button>
-                    </form>
-                </div>
-
-                <div class="bg-gray-900 rounded-2xl p-6 sm:p-8 border-2 border-gray-700 shadow-xl space-y-6">
-                    <div class="border-b-2 border-gray-800 pb-4">
-                        <h2 class="text-xl font-black text-white flex items-center space-x-3">
-                            <i class="fa-solid fa-user-plus text-emerald-400 text-2xl"></i>
-                            <span>Cadastrar Novo Perfil de Usuário</span>
-                        </h2>
-                        <p class="text-xs text-gray-400 mt-1">Crie um novo perfil para uso independente. Todos os novos perfis possuem por padrão a senha inicial: <strong class="text-emerald-400">123456</strong>.</p>
-                    </div>
-
-                    <form onsubmit="handleCreateUser(event)" class="space-y-4 max-w-md">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-300 uppercase mb-1">Nome do Novo Usuário *</label>
-                            <input type="text" id="new-user-name" required placeholder="Ex: Maria Clara" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold">
+                        <div class="flex justify-end pt-2">
+                            <button type="submit" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-sm shadow-lg shadow-emerald-950">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> Atualizar Senha
+                            </button>
                         </div>
-                        <button type="submit" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-sm transition-all shadow">
-                            <i class="fa-solid fa-plus mr-2"></i>Criar Usuário
-                        </button>
                     </form>
                 </div>
             </section>
@@ -660,9 +656,7 @@
                     <input type="month" id="closing-month-input" class="w-full bg-gray-950 border-2 border-gray-600 rounded-xl px-4 py-3 text-white font-bold">
                 </div>
 
-                <div id="closing-report-preview" class="bg-black/60 rounded-xl p-5 border border-gray-800 space-y-3 font-mono text-sm">
-                    <!-- Preenchido via JS -->
-                </div>
+                <div id="closing-report-preview" class="bg-black/60 rounded-xl p-5 border border-gray-800 space-y-3 font-mono text-sm"></div>
             </div>
 
             <div class="flex justify-end space-x-3 pt-2">
@@ -744,7 +738,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE & APP LOGIC -->
+    <!-- SCRIPT FIREBASE & APP LOGIC (VERSION 3.0) -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyActzsOuSUB2ubawHTnYc_2hzSSkTPMdfc",
@@ -756,9 +750,7 @@
         };
 
         let db = null;
-        let currentUser = null; // { id, name, passHash }
-        let usersList = [];
-
+        let currentUser = null;
         let investments = [];
         let historicalSnapshots = {};
         let annualParameters = {};
@@ -769,33 +761,16 @@
         let comparisonPieInstance = null;
         let yoyChartInstance = null;
 
-        // Função de Hash SHA-256 via Web Crypto API
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        document.addEventListener("DOMContentLoaded", async () => {
+        document.addEventListener("DOMContentLoaded", () => {
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
             db = firebase.firestore();
 
-            await loadUsersFromFirestore();
-
-            const savedUserId = sessionStorage.getItem("financeiro_user_id");
-            if (savedUserId) {
-                const found = usersList.find(u => u.id === savedUserId);
-                if (found) {
-                    currentUser = found;
-                    unlockSystem();
-                } else if (savedUserId === 'teste') {
-                    currentUser = { id: 'teste', name: 'Perfil Teste', passHash: null };
-                    unlockSystem();
-                }
+            const savedUser = sessionStorage.getItem("financeiro_user");
+            if (savedUser) {
+                currentUser = savedUser;
+                unlockSystem();
             }
 
             const now = new Date();
@@ -807,212 +782,137 @@
             if (salaryMonthEl) salaryMonthEl.value = defaultYM;
         });
 
-        async function loadUsersFromFirestore() {
-            try {
-                const snap = await db.collection("users").get();
-                usersList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                // Garante a existência do usuário padrão "Ricardo Wagner" caso a coleção seja nova
-                if (!usersList.some(u => u.name.toLowerCase() === "ricardo wagner")) {
-                    const defaultHash = await hashPassword("financeiro");
-                    const defaultUserDoc = db.collection("users").doc("user_ricardo");
-                    const defaultUserData = { name: "Ricardo Wagner", passHash: defaultHash, createdAt: new Date().toISOString() };
-                    await defaultUserDoc.set(defaultUserData);
-                    usersList.push({ id: "user_ricardo", ...defaultUserData });
-                }
-
-                populateUserSelectDropdown();
-            } catch (err) {
-                console.error("Erro ao carregar usuários:", err);
-            }
-        }
-
-        function populateUserSelectDropdown() {
-            const select = document.getElementById("auth-user-select");
-            let html = `<option value="teste">🟢 Perfil Teste (Sem Senha)</option>`;
-
-            usersList.forEach(u => {
-                html += `<option value="${u.id}">👤 ${u.name}</option>`;
-            });
-
-            select.innerHTML = html;
-            togglePasswordInput();
-        }
-
-        function togglePasswordInput() {
-            const selectVal = document.getElementById("auth-user-select").value;
-            const container = document.getElementById("password-field-container");
-            const btnText = document.querySelector("#auth-submit-btn span");
-
-            if (selectVal === "teste") {
-                container.classList.add("hidden");
-                btnText.innerText = "Entrar no Perfil Teste";
+        function checkTestUser() {
+            const user = document.getElementById("auth-user-select").value;
+            const passContainer = document.getElementById("auth-password-container");
+            if (user === "Teste") {
+                passContainer.style.display = "none";
             } else {
-                container.classList.remove("hidden");
-                btnText.innerText = "Entrar no Sistema";
+                passContainer.style.display = "block";
             }
+        }
+
+        async function hashPassword(password) {
+            const msgBuffer = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
         async function handleAuth(e) {
             e.preventDefault();
-            const selectedId = document.getElementById("auth-user-select").value;
+            const selectedUser = document.getElementById("auth-user-select").value;
+            const passwordInput = document.getElementById("auth-password").value;
             const errorEl = document.getElementById("auth-error");
-            errorEl.classList.add("hidden");
 
-            if (selectedId === "teste") {
-                currentUser = { id: 'teste', name: 'Perfil Teste', passHash: null };
-                sessionStorage.setItem("financeiro_user_id", "teste");
+            if (selectedUser === "Teste") {
+                currentUser = "Teste";
+                sessionStorage.setItem("financeiro_user", currentUser);
+                errorEl.classList.add("hidden");
                 unlockSystem();
                 return;
             }
 
-            const targetUser = usersList.find(u => u.id === selectedId);
-            if (!targetUser) return;
+            const defaultHash = await hashPassword("financeiro");
 
-            const inputPass = document.getElementById("auth-password").value;
-            const inputHash = await hashPassword(inputPass);
+            try {
+                const userDocRef = db.collection("users_auth").doc(selectedUser);
+                const userDoc = await userDocRef.get();
 
-            if (inputHash === targetUser.passHash) {
-                currentUser = targetUser;
-                sessionStorage.setItem("financeiro_user_id", targetUser.id);
-                document.getElementById("auth-password").value = "";
-                unlockSystem();
-            } else {
-                errorEl.classList.remove("hidden");
-                document.getElementById("auth-password").value = "";
+                let storedHash = defaultHash;
+                if (userDoc.exists) {
+                    storedHash = userDoc.data().passwordHash;
+                } else {
+                    await userDocRef.set({ passwordHash: defaultHash });
+                }
+
+                const inputHash = await hashPassword(passwordInput);
+
+                if (inputHash === storedHash) {
+                    currentUser = selectedUser;
+                    sessionStorage.setItem("financeiro_user", currentUser);
+                    errorEl.classList.add("hidden");
+                    unlockSystem();
+                } else {
+                    errorEl.classList.remove("hidden");
+                    document.getElementById("auth-password").value = "";
+                }
+            } catch (err) {
+                console.error("Erro na autenticação:", err);
+                if (passwordInput === "financeiro") {
+                    currentUser = selectedUser;
+                    sessionStorage.setItem("financeiro_user", currentUser);
+                    unlockSystem();
+                } else {
+                    errorEl.classList.remove("hidden");
+                }
             }
-        }
-
-        function getUserCollectionPath(collName) {
-            if (!currentUser) return `artifacts/default/public/data/${collName}`;
-            return `artifacts/financeiro/users/${currentUser.id}/${collName}`;
         }
 
         function unlockSystem() {
             document.getElementById("auth-overlay").classList.add("hidden");
             document.getElementById("app-content").classList.remove("hidden");
-            document.getElementById("current-user-display-name").innerText = currentUser ? currentUser.name : 'Perfil Teste';
-
-            // Ajusta o formulário de alteração de senha dependendo se é o perfil de teste
-            const currentPassDiv = document.getElementById("change-pass-current-container");
-            if (currentUser && currentUser.id === 'teste') {
-                if (currentPassDiv) currentPassDiv.classList.add("hidden");
-            } else {
-                if (currentPassDiv) currentPassDiv.classList.remove("hidden");
-            }
-
-            loadInvestmentsData();
+            document.getElementById("current-user-display").innerText = currentUser;
+            document.getElementById("settings-username-display").value = currentUser;
+            loadUserData();
             initCharts();
         }
 
-        // Limpa completamente todos os dados da memória e da tela ao sair
         function clearSystemState() {
             investments = [];
             historicalSnapshots = {};
             annualParameters = {};
             salaryRecords = {};
             pensionRecords = {};
-            currentUser = null;
 
-            // Oculta imediatamente todo o conteúdo do aplicativo
-            const appContent = document.getElementById("app-content");
-            if (appContent) appContent.classList.add("hidden");
+            document.getElementById("active-investments-tbody").innerHTML = "";
+            document.getElementById("closed-investments-tbody").innerHTML = "";
+            document.getElementById("profit-loss-tbody").innerHTML = "";
+            document.getElementById("salary-records-tbody").innerHTML = "";
+            document.getElementById("pension-monthly-tbody").innerHTML = "";
+            document.getElementById("pension-annual-tbody").innerHTML = "";
 
-            // Limpa o conteúdo das tabelas no HTML
-            const activeTbody = document.getElementById('active-investments-tbody');
-            if (activeTbody) activeTbody.innerHTML = '';
+            document.getElementById("metric-total-initial").innerText = "R$ 0,00";
+            document.getElementById("metric-total-current").innerText = "R$ 0,00";
+            document.getElementById("metric-unrealized-profit").innerText = "R$ 0,00";
+            document.getElementById("metric-unrealized-yield").innerText = "+0,00%";
+            document.getElementById("metric-realized-profit").innerText = "R$ 0,00";
 
-            const closedTbody = document.getElementById('closed-investments-tbody');
-            if (closedTbody) closedTbody.innerHTML = '';
+            if (riskChartInstance) { riskChartInstance.destroy(); riskChartInstance = null; }
+            if (comparisonPieInstance) { comparisonPieInstance.destroy(); comparisonPieInstance = null; }
+            if (yoyChartInstance) { yoyChartInstance.destroy(); yoyChartInstance = null; }
 
-            const pensionMonthly = document.getElementById('pension-monthly-tbody');
-            if (pensionMonthly) pensionMonthly.innerHTML = '';
-
-            const pensionAnnual = document.getElementById('pension-annual-tbody');
-            if (pensionAnnual) pensionAnnual.innerHTML = '';
-
-            const salaryTbody = document.getElementById('salary-records-tbody');
-            if (salaryTbody) salaryTbody.innerHTML = '';
-
-            // Zeramento explícito de todas as métricas financeiras na tela
-            const metricIds = [
-                'metric-total-initial', 'metric-total-current', 
-                'metric-unrealized-profit', 'metric-realized-profit',
-                'metric-daily-profit', 'metric-projected-year-profit',
-                'inss-avg-salary', 'inss-total-net-avg', 'inss-margin-val'
-            ];
-            metricIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.innerText = 'R$ 0,00';
-            });
-
-            // Reseta badges e textos
-            const activeBadge = document.getElementById('active-count-badge');
-            if (activeBadge) activeBadge.innerText = '0';
-
-            const closedBadge = document.getElementById('closed-count-badge');
-            if (closedBadge) closedBadge.innerText = '0';
-
-            const userDisplay = document.getElementById('current-user-display-name');
-            if (userDisplay) userDisplay.innerText = '---';
-
-            // Destrói os gráficos e limpa os relogios de tela dos canvas
-            ['riskChart', 'comparisonPieChart', 'yoyChart'].forEach(canvasId => {
-                const canvas = document.getElementById(canvasId);
-                if (canvas) {
-                    const ctx = canvas.getContext('2d');
-                    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }
-            });
-
-            if (riskChartInstance) {
-                riskChartInstance.destroy();
-                riskChartInstance = null;
-            }
-            if (comparisonPieInstance) {
-                comparisonPieInstance.destroy();
-                comparisonPieInstance = null;
-            }
-            if (yoyChartInstance) {
-                yoyChartInstance.destroy();
-                yoyChartInstance = null;
-            }
-        }
-
-        function lockSystem() {
-            sessionStorage.removeItem("financeiro_user_id");
-            clearSystemState();
+            document.getElementById("app-content").classList.add("hidden");
             document.getElementById("auth-overlay").classList.remove("hidden");
             document.getElementById("auth-password").value = "";
         }
 
-        async function loadInvestmentsData() {
-            if (!currentUser) return;
+        function lockSystem() {
+            sessionStorage.removeItem("financeiro_user");
+            clearSystemState();
+        }
+
+        function getUserCollectionPath(collectionName) {
+            return `users_data/${currentUser}/${collectionName}`;
+        }
+
+        async function loadUserData() {
             try {
-                const snapshot = await db.collection(getUserCollectionPath("investments")).get();
-                investments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const invSnap = await db.collection(getUserCollectionPath("investments")).orderBy("orderIndex", "asc").get();
+                investments = invSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // Garante que os fundos sejam ordenados pela propriedade orderIndex se ela existir
-                investments.sort((a, b) => (a.orderIndex !== undefined ? a.orderIndex : 0) - (b.orderIndex !== undefined ? b.orderIndex : 0));
-
-                // MIGRAÇÃO AUTOMÁTICA: Se o usuário logado for 'Ricardo Wagner' e os dados estiverem zerados,
-                // tenta resgatar os dados antigos salvos na raiz do Firebase
-                if (investments.length === 0 && currentUser.name.toLowerCase() === "ricardo wagner") {
+                // Migração automática de dados legados se estiver vazio
+                if (investments.length === 0 && currentUser === "Ricardo Wagner") {
                     const legacySnap = await db.collection("investments").get();
                     if (!legacySnap.empty) {
                         investments = legacySnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        await saveData(); // Salva os dados legados no novo caminho do usuário
-                        showToast("Dados recuperados com sucesso para o seu perfil!");
-                        return;
+                        await saveData();
                     }
                 }
 
                 const historySnap = await db.collection(getUserCollectionPath("history_snapshots")).get();
                 historicalSnapshots = {};
                 historySnap.docs.forEach(doc => { historicalSnapshots[doc.id] = doc.data(); });
-
-                // VERIFICAÇÃO AUTOMÁTICA DE VIRADA DE MÊS
-                await checkAndAutoClosePreviousMonth();
 
                 const paramsSnap = await db.collection(getUserCollectionPath("annual_parameters")).get();
                 annualParameters = {};
@@ -1026,74 +926,32 @@
                 pensionRecords = {};
                 pensionSnap.docs.forEach(doc => { pensionRecords[doc.id] = doc.data(); });
 
-                // Se for o primeiro acesso no perfil Teste e estiver vazio, carrega dados mockados de apresentação
-                if (currentUser.id === 'teste' && investments.length === 0) {
-                    await populateMockDataForTest();
-                    return;
-                }
+                checkAndAutoCalculateMonthlyYields();
             } catch (e) {
-                console.error("Erro ao carregar do Firestore:", e);
+                console.error("Erro ao carregar dados do usuário:", e);
                 showToast("Erro ao carregar dados do servidor.", "error");
             }
             renderAll();
         }
 
-        async function populateMockDataForTest() {
-            investments = [
-                { id: 'fund_t1', name: 'CDB Banco Master 120% CDI', risk: 'Baixo', initialValue: 10000, baseValue: 10000, currentBalance: 10450, realizedProfitFromYield: 0, status: 'active', notes: 'Ativo de Demonstração' },
-                { id: 'fund_t2', name: 'Fundo Multimercado Kinea', risk: 'Médio', initialValue: 5000, baseValue: 5000, currentBalance: 5320, realizedProfitFromYield: 0, status: 'active', notes: 'Ativo de Demonstração' },
-                { id: 'fund_t3', name: 'POUPANÇA', risk: 'Baixo', initialValue: 3000, baseValue: 3000, currentBalance: 3080, realizedProfitFromYield: 0, status: 'active', notes: 'Reserva de Emergência' }
-            ];
-            await saveData();
-        }
-
-        // Função para consolidar automaticamente o histórico do mês anterior se ainda não existir
-        async function checkAndAutoClosePreviousMonth() {
-            if (!currentUser || investments.length === 0) return;
-
-            const now = new Date();
-            const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            const prevYearMonthKey = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`;
-
-            // Se o mês anterior ainda não tiver um snapshot registrado no histórico
-            if (!historicalSnapshots[prevYearMonthKey]) {
-                const active = investments.filter(i => i.status === 'active');
-                const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
-                const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
-                const netYield = totalCurrent - totalBase;
-
-                const autoSnapshot = {
-                    totalBase: totalBase,
-                    totalCurrent: totalCurrent,
-                    yield: netYield,
-                    updatedAt: now.toISOString(),
-                    autoClosed: true
-                };
-
-                historicalSnapshots[prevYearMonthKey] = autoSnapshot;
-
-                try {
-                    await db.collection(getUserCollectionPath("history_snapshots")).doc(prevYearMonthKey).set(autoSnapshot);
-                } catch (err) {
-                    console.error("Erro ao registrar fechamento automático do mês anterior:", err);
-                }
-            }
-        }
-
         async function saveData() {
-            if (!currentUser) return;
             const now = new Date();
             const yearMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             
             const active = investments.filter(i => i.status === 'active');
             const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
             const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
-            const netYield = totalCurrent - totalBase;
 
-            // Atualiza a propriedade orderIndex com a posição atual no array
-            investments.forEach((item, index) => {
-                item.orderIndex = index;
-            });
+            // Calcula o lucro do mês com base na diferença para o saldo do mês anterior
+            let netYield = totalCurrent - totalBase;
+            const sortedMonths = Object.keys(historicalSnapshots).sort();
+            if (sortedMonths.length > 0) {
+                const prevMonthKey = sortedMonths[sortedMonths.length - 1];
+                if (prevMonthKey < yearMonthKey) {
+                    const prevTotalCurrent = historicalSnapshots[prevMonthKey].totalCurrent || totalBase;
+                    netYield = totalCurrent - prevTotalCurrent;
+                }
+            }
 
             historicalSnapshots[yearMonthKey] = {
                 totalBase: totalBase,
@@ -1102,14 +960,15 @@
                 updatedAt: now.toISOString()
             };
 
+            investments.forEach((item, idx) => { item.orderIndex = idx; });
+
             try {
                 const batch = db.batch();
-                const path = getUserCollectionPath("investments");
-                const snapshot = await db.collection(path).get();
-                snapshot.docs.forEach(doc => batch.delete(doc.ref));
-
+                
+                const invSnap = await db.collection(getUserCollectionPath("investments")).get();
+                invSnap.docs.forEach(doc => batch.delete(doc.ref));
                 investments.forEach(item => {
-                    const ref = db.collection(path).doc(item.id);
+                    const ref = db.collection(getUserCollectionPath("investments")).doc(item.id);
                     batch.set(ref, item);
                 });
 
@@ -1124,16 +983,39 @@
             renderAll();
         }
 
+        function checkAndAutoCalculateMonthlyYields() {
+            const now = new Date();
+            const currentYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const active = investments.filter(i => i.status === 'active');
+            const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
+            const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
+
+            if (!historicalSnapshots[currentYearMonth]) {
+                let netYield = totalCurrent - totalBase;
+                const sortedMonths = Object.keys(historicalSnapshots).sort();
+                if (sortedMonths.length > 0) {
+                    const prevMonthKey = sortedMonths[sortedMonths.length - 1];
+                    const prevTotalCurrent = historicalSnapshots[prevMonthKey].totalCurrent || totalBase;
+                    netYield = totalCurrent - prevTotalCurrent;
+                }
+
+                historicalSnapshots[currentYearMonth] = {
+                    totalBase: totalBase,
+                    totalCurrent: totalCurrent,
+                    yield: netYield,
+                    updatedAt: now.toISOString()
+                };
+            }
+        }
+
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
             const bgColor = type === 'success' ? 'bg-emerald-900 border-emerald-500 text-emerald-100' : 'bg-purple-900 border-purple-500 text-purple-100';
             const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-info';
 
             toast.className = `flex items-center space-x-3 px-5 py-3.5 rounded-xl border-2 shadow-2xl text-sm font-bold pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0 ${bgColor}`;
             toast.innerHTML = `<i class="fa-solid ${icon} text-xl"></i><span>${message}</span>`;
-
             container.appendChild(toast);
 
             setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
@@ -1147,6 +1029,7 @@
             renderActiveTable();
             renderClosedTable();
             renderMetrics();
+            renderProfitLossReport();
             renderRecommendedAllocation();
             renderComparisonTable();
             updateCharts();
@@ -1187,6 +1070,7 @@
                 realizedProfitFromYield: 0,
                 status: 'active',
                 notes,
+                orderIndex: investments.length,
                 lastUpdate: new Date().toISOString()
             };
 
@@ -1332,13 +1216,9 @@
                     if (fund.baseValue > 0) {
                         const amountFromBase = Math.min(fund.baseValue, val);
                         const remainder = val - amountFromBase;
-
                         fund.baseValue -= amountFromBase;
                         fund.currentBalance = Math.max(0, fund.currentBalance - val);
-
-                        if (remainder > 0) {
-                            fund.realizedProfitFromYield += remainder;
-                        }
+                        if (remainder > 0) fund.realizedProfitFromYield += remainder;
                     } else {
                         fund.currentBalance = Math.max(0, fund.currentBalance - val);
                         fund.realizedProfitFromYield += val;
@@ -1445,7 +1325,104 @@
             document.getElementById('metric-realized-profit').innerText = formatCurrency(totalRealizedProfit);
         }
 
-        /* --- PARÂMETROS ANUAIS & SALÁRIOS MENSAIS --- */
+        function renderProfitLossReport() {
+            const active = investments.filter(i => i.status === 'active');
+            const profitItems = [];
+            const lossItems = [];
+
+            active.forEach(item => {
+                const base = item.baseValue !== undefined ? item.baseValue : item.initialValue;
+                const profit = item.currentBalance - base;
+                const pct = base > 0 ? (profit / base) * 100 : 0;
+                const rowData = { ...item, base, profit, pct };
+
+                if (profit >= 0) {
+                    profitItems.push(rowData);
+                } else {
+                    lossItems.push(rowData);
+                }
+            });
+
+            const totalProfitVal = profitItems.reduce((acc, cur) => acc + cur.profit, 0);
+            const totalLossVal = lossItems.reduce((acc, cur) => acc + cur.profit, 0);
+
+            document.getElementById('report-profit-count').innerText = `${profitItems.length} ativos (${formatCurrency(totalProfitVal)})`;
+            document.getElementById('report-loss-count').innerText = `${lossItems.length} ativos (${formatCurrency(totalLossVal)})`;
+
+            const sortedAll = [...profitItems.sort((a,b) => b.profit - a.profit), ...lossItems.sort((a,b) => a.profit - b.profit)];
+            const tbody = document.getElementById('profit-loss-tbody');
+
+            if (sortedAll.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-gray-400">Nenhum fundo ativo cadastrado.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = sortedAll.map(item => {
+                const isPos = item.profit >= 0;
+                return `
+                    <tr class="hover:bg-gray-800 transition-colors">
+                        <td class="py-3 px-4 font-bold text-white">${item.name}</td>
+                        <td class="py-3 px-4">${getRiskBadge(item.risk)}</td>
+                        <td class="py-3 px-4 text-right text-gray-300">${formatCurrency(item.base)}</td>
+                        <td class="py-3 px-4 text-right text-white">${formatCurrency(item.currentBalance)}</td>
+                        <td class="py-3 px-4 text-right font-bold ${isPos ? 'text-emerald-400' : 'text-red-400'}">${isPos ? '+' : ''}${formatCurrency(item.profit)} (${isPos ? '+' : ''}${item.pct.toFixed(2)}%)</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        /* --- CONFIGURAÇÕES DE SENHA --- */
+        async function handlePasswordChange(e) {
+            e.preventDefault();
+            const newPass = document.getElementById("settings-new-password").value;
+            const confPass = document.getElementById("settings-confirm-password").value;
+
+            if (newPass !== confPass) {
+                showToast("As senhas não coincidem.", "error");
+                return;
+            }
+
+            if (currentUser === "Teste") {
+                showToast("O perfil Teste não possui senha.", "error");
+                return;
+            }
+
+            const newHash = await hashPassword(newPass);
+            try {
+                await db.collection("users_auth").doc(currentUser).set({ passwordHash: newHash });
+                showToast("Senha alterada com sucesso!");
+                document.getElementById("settings-new-password").value = "";
+                document.getElementById("settings-confirm-password").value = "";
+            } catch (err) {
+                console.error("Erro ao alterar senha:", err);
+                showToast("Erro ao alterar senha.", "error");
+            }
+        }
+
+        /* --- BACKUP JSON --- */
+        function exportBackupJSON() {
+            const backupData = {
+                user: currentUser,
+                version: "3.0",
+                exportDate: new Date().toISOString(),
+                investments,
+                historicalSnapshots,
+                annualParameters,
+                salaryRecords,
+                pensionRecords
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `backup_financeiro_${currentUser}_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+            showToast("Backup baixado com sucesso!");
+        }
+
+        /* --- PARÂMETROS ANUAIS & SALÁRIOS (INSS) --- */
         function populateParamYearSelector() {
             const select = document.getElementById('param-year-select');
             const currentYear = new Date().getFullYear();
@@ -1492,12 +1469,7 @@
 
             if (!monthKey) return;
 
-            const record = {
-                monthKey,
-                value,
-                updatedAt: new Date().toISOString()
-            };
-
+            const record = { monthKey, value, updatedAt: new Date().toISOString() };
             salaryRecords[monthKey] = record;
 
             try {
@@ -1528,9 +1500,7 @@
             const tbody = document.getElementById('salary-records-tbody');
             const selYear = document.getElementById('param-year-select').value || String(new Date().getFullYear());
 
-            const yearKeys = Object.keys(salaryRecords)
-                .filter(k => k.startsWith(selYear))
-                .sort((a,b) => b.localeCompare(a));
+            const yearKeys = Object.keys(salaryRecords).filter(k => k.startsWith(selYear)).sort((a,b) => b.localeCompare(a));
 
             if (yearKeys.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-gray-400">Nenhum salário informado para o ano ${selYear}.</td></tr>`;
@@ -1556,10 +1526,7 @@
             const selYear = document.getElementById('param-year-select').value || String(new Date().getFullYear());
             const params = annualParameters[selYear] || { inssCap: 0 };
 
-            const yearSalaries = Object.keys(salaryRecords)
-                .filter(k => k.startsWith(selYear))
-                .map(k => salaryRecords[k].value || 0);
-
+            const yearSalaries = Object.keys(salaryRecords).filter(k => k.startsWith(selYear)).map(k => salaryRecords[k].value || 0);
             const totalSalaryYear = yearSalaries.reduce((acc, val) => acc + val, 0);
             const monthsCount = yearSalaries.length;
             const avgSalaryMonthly = monthsCount > 0 ? totalSalaryYear / monthsCount : 0;
@@ -1621,14 +1588,7 @@
 
             if (!monthKey) return;
 
-            const record = {
-                monthKey,
-                contribution: contrib,
-                yieldVal: yieldVal,
-                monthlyBalance: contrib + yieldVal,
-                updatedAt: new Date().toISOString()
-            };
-
+            const record = { monthKey, contribution: contrib, yieldVal: yieldVal, monthlyBalance: contrib + yieldVal, updatedAt: new Date().toISOString() };
             pensionRecords[monthKey] = record;
 
             try {
@@ -1648,9 +1608,8 @@
             document.getElementById('pension-month').value = monthKey;
             document.getElementById('pension-contribution').value = rec.contribution;
             document.getElementById('pension-yield').value = rec.yieldVal;
-
             document.getElementById('pension-month').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            showToast(`Editando previdência de ${monthKey}. Ajuste e clique em Registrar.`);
+            showToast(`Editando previdência de ${monthKey}.`);
         }
 
         async function deletePensionRecord(monthKey) {
@@ -1669,7 +1628,6 @@
         function renderPensionTables() {
             const monthlyTbody = document.getElementById('pension-monthly-tbody');
             const annualTbody = document.getElementById('pension-annual-tbody');
-
             const keys = Object.keys(pensionRecords).sort((a,b) => b.localeCompare(a));
 
             if (keys.length === 0) {
@@ -1698,12 +1656,9 @@
             const yearlyMap = {};
             keys.forEach(k => {
                 const year = k.split('-')[0];
-                if (!yearlyMap[year]) {
-                    yearlyMap[year] = { totalContrib: 0, totalYield: 0, recordsCount: 0 };
-                }
+                if (!yearlyMap[year]) yearlyMap[year] = { totalContrib: 0, totalYield: 0 };
                 yearlyMap[year].totalContrib += (pensionRecords[k].contribution || 0);
                 yearlyMap[year].totalYield += (pensionRecords[k].yieldVal || 0);
-                yearlyMap[year].recordsCount += 1;
             });
 
             const yearsAsc = Object.keys(yearlyMap).sort((a,b) => a.localeCompare(b));
@@ -1713,12 +1668,7 @@
             yearsAsc.forEach(y => {
                 const yearData = yearlyMap[y];
                 runningAccumulatedBalance += yearData.totalContrib + yearData.totalYield;
-                annualRows.unshift({
-                    year: y,
-                    contrib: yearData.totalContrib,
-                    yieldVal: yearData.totalYield,
-                    finalBalance: runningAccumulatedBalance
-                });
+                annualRows.unshift({ year: y, contrib: yearData.totalContrib, yieldVal: yearData.totalYield, finalBalance: runningAccumulatedBalance });
             });
 
             annualTbody.innerHTML = annualRows.map(r => `
@@ -1731,85 +1681,7 @@
             `).join('');
         }
 
-        /* --- CONFIGURAÇÕES DE USUÁRIO E ALTERAÇÃO DE SENHA --- */
-        async function handleChangePassword(e) {
-            e.preventDefault();
-            if (!currentUser) return;
-
-            const newPass = document.getElementById("change-pass-new").value;
-            const confirmPass = document.getElementById("change-pass-confirm").value;
-
-            if (newPass !== confirmPass) {
-                showToast("A nova senha e a confirmação não conferem.", "error");
-                return;
-            }
-
-            if (currentUser.id !== 'teste') {
-                const currentPass = document.getElementById("change-pass-current").value;
-                const currentHash = await hashPassword(currentPass);
-                if (currentHash !== currentUser.passHash) {
-                    showToast("Senha atual incorreta.", "error");
-                    return;
-                }
-            }
-
-            const newHash = await hashPassword(newPass);
-
-            if (currentUser.id === 'teste') {
-                showToast("O Perfil Teste não possui alteração de senha fixa.", "error");
-                return;
-            }
-
-            try {
-                await db.collection("users").doc(currentUser.id).update({
-                    passHash: newHash,
-                    updatedAt: new Date().toISOString()
-                });
-
-                currentUser.passHash = newHash;
-                showToast("Senha atualizada com sucesso!");
-                document.getElementById("change-pass-current").value = "";
-                document.getElementById("change-pass-new").value = "";
-                document.getElementById("change-pass-confirm").value = "";
-            } catch (err) {
-                console.error("Erro ao alterar senha:", err);
-                showToast("Erro ao alterar a senha.", "error");
-            }
-        }
-
-        async function handleCreateUser(e) {
-            e.preventDefault();
-            const nameInput = document.getElementById("new-user-name").value.trim();
-            if (!nameInput) return;
-
-            if (usersList.some(u => u.name.toLowerCase() === nameInput.toLowerCase())) {
-                showToast("Já existe um usuário com esse nome.", "error");
-                return;
-            }
-
-            const defaultHash = await hashPassword("123456");
-            const newUserId = "user_" + Date.now();
-
-            const newUserDoc = {
-                name: nameInput,
-                passHash: defaultHash,
-                createdAt: new Date().toISOString()
-            };
-
-            try {
-                await db.collection("users").doc(newUserId).set(newUserDoc);
-                usersList.push({ id: newUserId, ...newUserDoc });
-                populateUserSelectDropdown();
-
-                showToast(`Usuário "${nameInput}" criado com a senha padrão "123456"!`);
-                document.getElementById("new-user-name").value = "";
-            } catch (err) {
-                console.error("Erro ao criar usuário:", err);
-                showToast("Erro ao cadastrar novo usuário.", "error");
-            }
-        }
-
-        /* --- LÓGICA DE FECHAMENTO DE MÊS & RELATÓRIO --- */
+        /* --- FECHAMENTO DE MÊS --- */
         function openClosingModal() {
             const now = new Date();
             const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -1818,9 +1690,7 @@
             document.getElementById('closing-modal').classList.remove('hidden');
         }
 
-        function closeClosingModal() {
-            document.getElementById('closing-modal').classList.add('hidden');
-        }
+        function closeClosingModal() { document.getElementById('closing-modal').classList.add('hidden'); }
 
         function updateClosingPreview() {
             const active = investments.filter(i => i.status === 'active');
@@ -1829,27 +1699,16 @@
             const netYield = totalCurrent - totalBase;
             const yieldPct = totalBase > 0 ? (netYield / totalBase) * 100 : 0;
 
-            const lowRisk = active.filter(i => i.risk === 'Baixo').reduce((a,c) => a + c.currentBalance, 0);
-            const medRisk = active.filter(i => i.risk === 'Médio').reduce((a,c) => a + c.currentBalance, 0);
-            const highRisk = active.filter(i => i.risk === 'Alto').reduce((a,c) => a + c.currentBalance, 0);
-
             const previewEl = document.getElementById('closing-report-preview');
             previewEl.innerHTML = `
                 <div class="border-b border-gray-800 pb-2 mb-2">
                     <p class="text-xs text-emerald-400 font-bold uppercase">RELATÓRIO FINANCEIRO MENSAL</p>
-                    <p class="text-xs text-gray-300">Data de Geração: ${new Date().toLocaleDateString('pt-BR')}</p>
+                    <p class="text-xs text-gray-300">Data: ${new Date().toLocaleDateString('pt-BR')}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div><span class="text-gray-400">Total Investido (Base):</span> <strong class="text-white">${formatCurrency(totalBase)}</strong></div>
+                    <div><span class="text-gray-400">Total Base:</span> <strong class="text-white">${formatCurrency(totalBase)}</strong></div>
                     <div><span class="text-gray-400">Patrimônio Atual:</span> <strong class="text-white">${formatCurrency(totalCurrent)}</strong></div>
-                    <div><span class="text-gray-400">Lucro Líquido do Mês:</span> <strong class="text-emerald-400">${formatCurrency(netYield)} (${yieldPct.toFixed(2)}%)</strong></div>
-                    <div><span class="text-gray-400">Ativos Ativos:</span> <strong class="text-white">${active.length} fundos</strong></div>
-                </div>
-                <div class="pt-2 border-t border-gray-800 text-xs space-y-1">
-                    <p class="text-gray-400 font-bold">Alocação por Risco:</p>
-                    <p>🟢 Baixo Risco: ${formatCurrency(lowRisk)} (${totalCurrent > 0 ? ((lowRisk/totalCurrent)*100).toFixed(1) : 0}%)</p>
-                    <p>🟡 Médio Risco: ${formatCurrency(medRisk)} (${totalCurrent > 0 ? ((medRisk/totalCurrent)*100).toFixed(1) : 0}%)</p>
-                    <p>🔴 Alto Risco: ${formatCurrency(highRisk)} (${totalCurrent > 0 ? ((highRisk/totalCurrent)*100).toFixed(1) : 0}%)</p>
+                    <div><span class="text-gray-400">Lucro Total:</span> <strong class="text-emerald-400">${formatCurrency(netYield)} (${yieldPct.toFixed(2)}%)</strong></div>
                 </div>
             `;
         }
@@ -1861,14 +1720,17 @@
             const active = investments.filter(i => i.status === 'active');
             const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
             const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
-            const netYield = totalCurrent - totalBase;
 
-            historicalSnapshots[monthVal] = {
-                totalBase: totalBase,
-                totalCurrent: totalCurrent,
-                yield: netYield,
-                updatedAt: new Date().toISOString()
-            };
+            let netYield = totalCurrent - totalBase;
+            const sortedMonths = Object.keys(historicalSnapshots).sort();
+            const prevMonths = sortedMonths.filter(m => m < monthVal);
+            if (prevMonths.length > 0) {
+                const prevMonthKey = prevMonths[prevMonths.length - 1];
+                const prevTotalCurrent = historicalSnapshots[prevMonthKey].totalCurrent || totalBase;
+                netYield = totalCurrent - prevTotalCurrent;
+            }
+
+            historicalSnapshots[monthVal] = { totalBase, totalCurrent, yield: netYield, updatedAt: new Date().toISOString() };
 
             try {
                 await db.collection(getUserCollectionPath("history_snapshots")).doc(monthVal).set(historicalSnapshots[monthVal]);
@@ -1877,15 +1739,12 @@
                 renderAll();
             } catch (e) {
                 console.error("Erro ao salvar fechamento:", e);
-                showToast("Erro ao salvar fechamento no servidor.", "error");
+                showToast("Erro ao salvar no servidor.", "error");
             }
         }
 
-        function printReport() {
-            window.print();
-        }
+        function printReport() { window.print(); }
 
-        /* --- PERFORMANCE DIÁRIA E PROJEÇÃO FIM DE ANO --- */
         function calculateDailyAndYearProjection() {
             const now = new Date();
             const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -1948,7 +1807,6 @@
 
         function renderComparisonTable() {
             const active = investments.filter(i => i.status === 'active');
-            
             const poupancaFund = active.find(i => i.name.trim().toUpperCase() === 'POUPANÇA');
             const poupancaBalance = poupancaFund ? poupancaFund.currentBalance : 0;
             const poupancaBase = poupancaFund ? (poupancaFund.baseValue !== undefined ? poupancaFund.baseValue : poupancaFund.initialValue) : 0;
@@ -1980,19 +1838,9 @@
         }
 
         function initCharts() {
-            // Destrói instâncias existentes para evitar o erro "Canvas is already in use"
-            if (riskChartInstance) {
-                riskChartInstance.destroy();
-                riskChartInstance = null;
-            }
-            if (comparisonPieInstance) {
-                comparisonPieInstance.destroy();
-                comparisonPieInstance = null;
-            }
-            if (yoyChartInstance) {
-                yoyChartInstance.destroy();
-                yoyChartInstance = null;
-            }
+            if (riskChartInstance) { riskChartInstance.destroy(); riskChartInstance = null; }
+            if (comparisonPieInstance) { comparisonPieInstance.destroy(); comparisonPieInstance = null; }
+            if (yoyChartInstance) { yoyChartInstance.destroy(); yoyChartInstance = null; }
 
             riskChartInstance = new Chart(document.getElementById('riskChart').getContext('2d'), {
                 type: 'doughnut',
@@ -2018,7 +1866,6 @@
                                 generateLabels: (chart) => {
                                     const data = chart.data;
                                     const total = data.datasets[0].data.reduce((acc, val) => acc + val, 0);
-                                    
                                     const active = investments.filter(i => i.status === 'active');
                                     const countLow = active.filter(i => i.risk === 'Baixo').length;
                                     const countMed = active.filter(i => i.risk === 'Médio').length;
@@ -2065,23 +1912,7 @@
                             labels: {
                                 color: '#111827',
                                 font: { weight: 'bold', size: 13 },
-                                padding: 16,
-                                generateLabels: (chart) => {
-                                    const data = chart.data;
-                                    const total = data.datasets[0].data.reduce((acc, val) => acc + val, 0);
-                                    return data.labels.map((label, i) => {
-                                        const val = data.datasets[0].data[i];
-                                        const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0';
-                                        return {
-                                            text: `${label}: ${formatCurrency(val)} (${pct}%)`,
-                                            fillStyle: data.datasets[0].backgroundColor[i],
-                                            strokeStyle: '#ffffff',
-                                            lineWidth: 1,
-                                            hidden: false,
-                                            index: i
-                                        };
-                                    });
-                                }
+                                padding: 16
                             }
                         }
                     }
@@ -2105,10 +1936,7 @@
                         y: { ticks: { color: '#ffffff', font: { weight: 'bold' } }, grid: { color: '#374151' } }
                     },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: { color: '#ffffff', font: { weight: 'bold' } }
-                        }
+                        legend: { position: 'top', labels: { color: '#ffffff', font: { weight: 'bold' } } }
                     }
                 }
             });
@@ -2156,43 +1984,8 @@
         function formatDate(ds) { if (!ds) return '---'; const [y, m, d] = ds.split('-'); return `${d}/${m}/${y}`; }
         function getRiskBadge(r) {
             if (r === 'Baixo') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500">🟢 Baixo</span>`;
-            if (r === 'Médio') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-amber-950 text-amber-300 border border-amber-500">🟡 Médio</span>`;
-            return `<span class="px-3 py-1 text-xs font-black rounded-full bg-red-950 text-red-300 border border-red-500">🔴 Alto</span>`;
-        }
-
-        // Função de Backup de Dados em arquivo JSON no computador
-        function downloadBackup() {
-            if (!currentUser) {
-                showToast("Nenhum usuário conectado para backup.", "error");
-                return;
-            }
-
-            const backupData = {
-                version: "3.0",
-                user: currentUser.name,
-                userId: currentUser.id,
-                exportedAt: new Date().toISOString(),
-                investments,
-                historicalSnapshots,
-                annualParameters,
-                salaryRecords,
-                pensionRecords
-            };
-
-            const jsonStr = JSON.stringify(backupData, null, 2);
-            const blob = new Blob([jsonStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            const dateSuffix = new Date().toISOString().split('T')[0];
-            a.download = `backup_financeiro_v3_${currentUser.name.toLowerCase().replace(/\s+/g, '_')}_${dateSuffix}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            showToast("Backup v3.0 baixado com sucesso!");
+            if (r === 'Médio') return `<span class="px-3 py-1 text-xs font-black rounded-full bg-amber-950 text-amber-300 border border-emerald-500">🟡 Médio</span>`;
+            return `<span class="px-3 py-1 text-xs font-black rounded-full bg-red-950 text-red-300 border border-emerald-500">🔴 Alto</span>`;
         }
     </script>
 </body>
