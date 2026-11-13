@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Financeiro - Versão 4.1 - Desenvolvido por Ricardo Wagner</title>
+    <title>Controle Financeiro - Versão 4.2 - Desenvolvido por Ricardo Wagner</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -72,7 +72,7 @@
             
             <div>
                 <h2 class="text-2xl font-black text-white tracking-wide">Acesso Restrito</h2>
-                <p class="text-xs text-emerald-400 font-bold uppercase tracking-wider mt-1">Controle Financeiro - v4.1</p>
+                <p class="text-xs text-emerald-400 font-bold uppercase tracking-wider mt-1">Controle Financeiro - v4.2</p>
             </div>
 
             <form onsubmit="handleAuth(event)" class="space-y-4 text-left">
@@ -119,7 +119,7 @@
                         <i class="fa-solid fa-wallet text-2xl" aria-hidden="true"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl font-extrabold text-white tracking-wide">Controle Financeiro <span class="text-xs bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-600 ml-2">v4.1</span></h1>
+                        <h1 class="text-xl font-extrabold text-white tracking-wide">Controle Financeiro <span class="text-xs bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-600 ml-2">v4.2</span></h1>
                         <p class="text-xs text-emerald-400 font-bold tracking-wider uppercase mt-0.5">Desenvolvido por Ricardo Wagner</p>
                     </div>
                 </div>
@@ -283,17 +283,26 @@
                     </div>
                 </div>
 
-                <!-- PAINEL DE PERFORMANCE DIÁRIA E PROJEÇÃO -->
-                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-emerald-500/60 shadow-xl space-y-4">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b-2 border-gray-800 pb-3">
-                        <h3 class="text-lg font-black text-white flex items-center space-x-3">
-                            <i class="fa-solid fa-calendar-day text-emerald-400 text-xl"></i>
-                            <span>Performance Diária e Projeção do Ano</span>
-                        </h3>
-                        <span id="days-count-badge" class="px-3 py-1 bg-emerald-950 text-emerald-300 border border-emerald-500/60 text-xs font-black rounded-full">0 dias no ano</span>
+                <!-- PAINEL DE PERFORMANCE DIÁRIA, PROJEÇÃO E HISTÓRICO ANUAL -->
+                <div class="bg-gray-900 rounded-2xl p-6 border-2 border-emerald-500/60 shadow-xl space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b-2 border-gray-800 pb-4">
+                        <div>
+                            <h3 class="text-lg font-black text-white flex items-center space-x-3">
+                                <i class="fa-solid fa-calendar-day text-emerald-400 text-xl"></i>
+                                <span>Performance Diária e Projeção do Ano</span>
+                            </h3>
+                            <p class="text-xs text-gray-400 mt-1">Acompanhe o ritmo atual e salve registros para consultar o histórico de anos anteriores.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span id="days-count-badge" class="px-3 py-1.5 bg-emerald-950 text-emerald-300 border border-emerald-500/60 text-xs font-black rounded-full">0 dias no ano</span>
+                            <button onclick="saveDailyProjectionSnapshot()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-xl text-xs shadow-lg shadow-emerald-950 transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-camera"></i>
+                                <span>Registrar Snapshot Hoje</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="bg-black/50 p-4 rounded-xl border border-gray-800">
                             <p class="text-xs font-bold text-gray-400 uppercase">Dias Decorridos no Ano</p>
                             <h4 id="metric-days-passed" class="text-2xl font-black text-white mt-1">0 dias</h4>
@@ -310,6 +319,37 @@
                             <p class="text-xs font-bold text-gray-400 uppercase">Projeção de Lucro (31/Dez)</p>
                             <h4 id="metric-projected-year-profit" class="text-2xl font-black text-amber-300 mt-1">R$ 0,00</h4>
                             <p class="text-xs text-gray-400 mt-1">Projeção estimada até o fim do ano</p>
+                        </div>
+                    </div>
+
+                    <!-- HISTÓRICO DE PERFORMANCE DIÁRIA E PROJEÇÕES -->
+                    <div class="bg-black/50 rounded-xl p-4 border border-gray-800 space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <h4 class="text-xs font-bold text-emerald-400 uppercase flex items-center space-x-2">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <span>Histórico de Lucro Médio Diário & Projeções</span>
+                            </h4>
+                            <div class="flex items-center space-x-2">
+                                <label for="projection-history-year" class="text-xs font-bold text-gray-400">Consultar Ano:</label>
+                                <select id="projection-history-year" onchange="renderProjectionHistoryTable()" class="bg-gray-950 border border-gray-600 text-white font-bold text-xs rounded-lg px-3 py-1.5">
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-white">
+                                <thead class="bg-gray-950 uppercase font-black text-[10px] text-gray-400 border-b border-gray-800">
+                                    <tr>
+                                        <th class="py-2.5 px-4">Data do Registro</th>
+                                        <th class="py-2.5 px-4 text-center">Dias no Ano</th>
+                                        <th class="py-2.5 px-4 text-right">Lucro Acumulado</th>
+                                        <th class="py-2.5 px-4 text-right">Lucro Médio Diário</th>
+                                        <th class="py-2.5 px-4 text-right">Projeção (31/Dez)</th>
+                                        <th class="py-2.5 px-4 text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projection-history-tbody" class="divide-y divide-gray-800 font-mono"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -848,6 +888,7 @@
         let annualParameters = {};
         let salaryRecords = {};
         let pensionRecords = {};
+        let projectionHistory = {};
 
         let riskChartInstance = null;
         let comparisonBalancePieInstance = null;
@@ -986,6 +1027,7 @@
             annualParameters = {};
             salaryRecords = {};
             pensionRecords = {};
+            projectionHistory = {};
 
             document.getElementById("active-investments-tbody").innerHTML = "";
             document.getElementById("closed-investments-tbody").innerHTML = "";
@@ -993,6 +1035,7 @@
             document.getElementById("salary-records-tbody").innerHTML = "";
             document.getElementById("pension-monthly-tbody").innerHTML = "";
             document.getElementById("pension-annual-tbody").innerHTML = "";
+            document.getElementById("projection-history-tbody").innerHTML = "";
 
             document.getElementById("metric-total-initial").innerText = "R$ 0,00";
             document.getElementById("metric-total-current").innerText = "R$ 0,00";
@@ -1114,6 +1157,10 @@
                 pensionRecords = {};
                 pensionSnap.docs.forEach(doc => { pensionRecords[doc.id] = doc.data(); });
 
+                const projSnap = await db.collection(getUserCollectionPath("daily_projections_history")).get();
+                projectionHistory = {};
+                projSnap.docs.forEach(doc => { projectionHistory[doc.id] = doc.data(); });
+
                 checkAndAutoCalculateMonthlyYields();
             } catch (e) {
                 console.error("Erro ao carregar dados do usuário:", e);
@@ -1223,6 +1270,8 @@
             updateYoYChart();
             populateParamYearSelector();
             calculateDailyAndYearProjection();
+            populateProjectionHistoryYearSelector();
+            renderProjectionHistoryTable();
             calculateINSSComparison();
             renderSalaryTable();
             renderPensionTables();
@@ -1675,7 +1724,7 @@
             try {
                 await db.collection("users_auth").doc(usernameToDelete).delete();
 
-                const collections = ["investments", "history_snapshots", "annual_parameters", "salary_records", "pension_records"];
+                const collections = ["investments", "history_snapshots", "annual_parameters", "salary_records", "pension_records", "daily_projections_history"];
                 for (const col of collections) {
                     const snap = await db.collection(`users_data/${usernameToDelete}/${col}`).get();
                     const batch = db.batch();
@@ -1700,13 +1749,14 @@
         function exportBackupJSON() {
             const backupData = {
                 user: currentUser,
-                version: "4.1",
+                version: "4.2",
                 exportDate: new Date().toISOString(),
                 investments,
                 historicalSnapshots,
                 annualParameters,
                 salaryRecords,
-                pensionRecords
+                pensionRecords,
+                projectionHistory
             };
 
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
@@ -1775,6 +1825,13 @@
                         Object.keys(data.pensionRecords).forEach(k => {
                             const ref = db.collection(getUserCollectionPath("pension_records")).doc(k);
                             batch.set(ref, data.pensionRecords[k]);
+                        });
+                    }
+
+                    if (data.projectionHistory) {
+                        Object.keys(data.projectionHistory).forEach(k => {
+                            const ref = db.collection(getUserCollectionPath("daily_projections_history")).doc(k);
+                            batch.set(ref, data.projectionHistory[k]);
                         });
                     }
 
@@ -2098,7 +2155,9 @@
 
             try {
                 await db.collection(getUserCollectionPath("history_snapshots")).doc(monthVal).set(historicalSnapshots[monthVal]);
-                showToast(`Fechamento de ${monthVal} salvo com sucesso!`);
+                // Grava também um snapshot de performance diária/projeção junto ao fechamento
+                await saveDailyProjectionSnapshot(null, true);
+                showToast(`Fechamento de ${monthVal} e snapshot de projeção salvos com sucesso!`);
                 closeClosingModal();
                 renderAll();
             } catch (e) {
@@ -2109,6 +2168,7 @@
 
         function printReport() { window.print(); }
 
+        /* --- PERFORMANCE DIÁRIA, PROJEÇÃO E HISTÓRICO --- */
         function calculateDailyAndYearProjection() {
             const now = new Date();
             const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -2129,6 +2189,111 @@
             document.getElementById('metric-days-passed').innerText = `${daysPassed} dias`;
             document.getElementById('metric-daily-profit').innerText = `${formatCurrency(dailyProfit)} / dia`;
             document.getElementById('metric-projected-year-profit').innerText = formatCurrency(projectedProfit);
+        }
+
+        async function saveDailyProjectionSnapshot(customDateStr = null, silent = false) {
+            const now = new Date();
+            const localDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const dateKey = customDateStr || localDateStr;
+            const year = parseInt(dateKey.split('-')[0]);
+
+            const startOfYear = new Date(year, 0, 1);
+            const refDate = new Date(dateKey + 'T12:00:00');
+            const diffTime = Math.abs(refDate - startOfYear);
+            const daysPassed = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+            const active = investments.filter(i => i.status === 'active');
+            const totalBase = active.reduce((acc, curr) => acc + (curr.baseValue !== undefined ? curr.baseValue : curr.initialValue), 0);
+            const totalCurrent = active.reduce((acc, curr) => acc + curr.currentBalance, 0);
+            const currentProfit = totalCurrent - totalBase;
+
+            const dailyProfit = currentProfit / daysPassed;
+            const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+            const totalDaysInYear = isLeap ? 366 : 365;
+            const projectedProfit = dailyProfit * totalDaysInYear;
+
+            const record = {
+                dateKey,
+                year,
+                daysPassed,
+                currentProfit,
+                dailyProfit,
+                projectedProfit,
+                updatedAt: now.toISOString()
+            };
+
+            projectionHistory[dateKey] = record;
+
+            try {
+                await db.collection(getUserCollectionPath("daily_projections_history")).doc(dateKey).set(record);
+                if (!silent) {
+                    showToast(`Snapshot de ${formatDate(dateKey)} salvo no histórico!`);
+                }
+                populateProjectionHistoryYearSelector();
+                renderProjectionHistoryTable();
+            } catch (err) {
+                console.error("Erro ao salvar histórico de projeção:", err);
+                if (!silent) showToast("Erro ao salvar snapshot no servidor.", "error");
+            }
+        }
+
+        async function deleteProjectionHistory(dateKey) {
+            if (!confirm(`Deseja excluir o registro histórico do dia ${formatDate(dateKey)}?`)) return;
+            try {
+                await db.collection(getUserCollectionPath("daily_projections_history")).doc(dateKey).delete();
+                delete projectionHistory[dateKey];
+                showToast("Registro removido.");
+                renderProjectionHistoryTable();
+            } catch (err) {
+                console.error("Erro ao excluir registro:", err);
+            }
+        }
+
+        function populateProjectionHistoryYearSelector() {
+            const select = document.getElementById('projection-history-year');
+            if (!select) return;
+            const currentYear = new Date().getFullYear();
+            const yearsSet = new Set([currentYear]);
+            Object.values(projectionHistory).forEach(item => {
+                if (item.year) yearsSet.add(parseInt(item.year));
+            });
+
+            const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
+            const prevSelected = select.value;
+            select.innerHTML = sortedYears.map(y => 
+                `<option value="${y}" ${(prevSelected ? parseInt(prevSelected) === y : y === currentYear) ? 'selected' : ''}>${y}</option>`
+            ).join('');
+        }
+
+        function renderProjectionHistoryTable() {
+            const tbody = document.getElementById('projection-history-tbody');
+            const select = document.getElementById('projection-history-year');
+            if (!tbody || !select) return;
+
+            const selYear = parseInt(select.value) || new Date().getFullYear();
+            const records = Object.values(projectionHistory)
+                .filter(item => parseInt(item.year) === selYear)
+                .sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-gray-400 font-sans">Nenhum registro histórico salvo para o ano ${selYear}. Clique em "Registrar Snapshot Hoje" para salvar o primeiro.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = records.map(rec => `
+                <tr class="hover:bg-gray-800 transition-colors">
+                    <td class="py-2.5 px-4 font-bold text-white">${formatDate(rec.dateKey)}</td>
+                    <td class="py-2.5 px-4 text-center text-gray-300">${rec.daysPassed}º dia</td>
+                    <td class="py-2.5 px-4 text-right text-white font-bold">${formatCurrency(rec.currentProfit)}</td>
+                    <td class="py-2.5 px-4 text-right text-emerald-400 font-bold">${formatCurrency(rec.dailyProfit)} / dia</td>
+                    <td class="py-2.5 px-4 text-right text-amber-300 font-bold">${formatCurrency(rec.projectedProfit)}</td>
+                    <td class="py-2.5 px-4 text-center">
+                        <button onclick="deleteProjectionHistory('${rec.dateKey}')" title="Excluir registro" class="p-1.5 bg-red-950 hover:bg-red-900 text-red-300 rounded border border-red-700 text-[10px]">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function renderRecommendedAllocation() {
@@ -2195,7 +2360,6 @@
                 </tr>
             `;
 
-            // Atualiza os dados dos 2 gráficos de setores
             if (comparisonBalancePieInstance) {
                 comparisonBalancePieInstance.data.datasets[0].data = [otherBalance, poupancaBalance];
                 comparisonBalancePieInstance.update();
@@ -2213,7 +2377,6 @@
             if (comparisonProfitPieInstance) { comparisonProfitPieInstance.destroy(); comparisonProfitPieInstance = null; }
             if (yoyChartInstance) { yoyChartInstance.destroy(); yoyChartInstance = null; }
 
-            // 1. Gráfico de Risco (Rosca)
             riskChartInstance = new Chart(document.getElementById('riskChart').getContext('2d'), {
                 type: 'doughnut',
                 data: {
@@ -2264,7 +2427,6 @@
                 }
             });
 
-            // 2. Gráfico de Setores 1: Saldos Atuais (Patrimônio)
             comparisonBalancePieInstance = new Chart(document.getElementById('comparisonBalancePieChart').getContext('2d'), {
                 type: 'pie',
                 data: {
@@ -2308,7 +2470,6 @@
                 }
             });
 
-            // 3. Gráfico de Setores 2: Lucros Líquidos
             comparisonProfitPieInstance = new Chart(document.getElementById('comparisonProfitPieChart').getContext('2d'), {
                 type: 'pie',
                 data: {
@@ -2352,7 +2513,6 @@
                 }
             });
 
-            // 4. Gráfico YoY (Barras)
             yoyChartInstance = new Chart(document.getElementById('yoyChart').getContext('2d'), {
                 type: 'bar',
                 data: {
